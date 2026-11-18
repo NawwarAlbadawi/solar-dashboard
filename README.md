@@ -10,6 +10,8 @@ Works automatically with any device connected to your **FSolar / Shine Felicity 
 - **Batteries:** 12V, 24V, and 48V Felicity Lithium / LiFePO4 battery packs (both direct Wi-Fi BMS packs and BMS data read through the inverter)
 
 ## Features
+- **Bilingual UI (English + العربية RTL):** One-click language switcher with full right-to-left Arabic layout and Cairo typography.
+- **Consumption Cost & New Syria Electricity Tariff Calculator:** Built-in official Syrian electricity tariff presets (Residential 2-month progressive tiers: 0–300 kWh @ 600 SYP / 6 New SYP, >300 kWh @ 1,400 SYP / 14 New SYP; Commercial 1,400 SYP; Exempt 1,700 SYP; Heavy Industry 1,800 SYP) + Old/New SYP toggle + Custom flat rate for any country.
 - **Live Energy Flow Diagram:** Real-time animated power flow between Solar PV, Grid AC, Lithium Battery, and Home Load.
 - **Power Hours Analytics:** Tracks daily **Solar Active Hours**, **Peak Sun Hours**, **Battery Backup Hours**, and **Grid Hours**.
 - **Interactive Backup Runtime Estimator:** Drag the load slider to instantly see how many hours your battery will last at any wattage.

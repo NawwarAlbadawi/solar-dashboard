@@ -1,9 +1,12 @@
 import { Battery, Clock, Coins, Flame, Sun, Zap } from 'lucide-react';
+import { translations, type Lang } from '../i18n/translations';
 import type { LatestData, UserSettings } from '../types/solar';
 import {
+  calculateDailyCost,
   estimateBackupHours,
   estimateTimeToFullHours,
   formatDurationHours,
+  formatMoney,
   formatWatts,
   getBatteryCapacityKwh,
 } from '../utils/calculations';
@@ -11,9 +14,11 @@ import {
 interface KpiGridProps {
   data: LatestData;
   settings: UserSettings;
+  lang: Lang;
 }
 
-export function KpiGrid({ data, settings }: KpiGridProps) {
+export function KpiGrid({ data, settings, lang }: KpiGridProps) {
+  const t = translations[lang];
   const { inverter, battery, today } = data;
   const capacityKwh = getBatteryCapacityKwh(battery, settings);
   const backupHours = estimateBackupHours(
@@ -24,33 +29,35 @@ export function KpiGrid({ data, settings }: KpiGridProps) {
     settings.inverterEfficiency
   );
   const timeToFull = estimateTimeToFullHours(battery.soc, battery.powerW, capacityKwh);
-  const solarSavings = (today.pvKwh * settings.electricityRatePerKwh).toFixed(2);
-  const gridCost = (today.gridKwh * settings.electricityRatePerKwh).toFixed(2);
+
+  const todayConsumptionCost = calculateDailyCost(today.loadKwh, settings);
+  const todayGridCost = calculateDailyCost(today.gridKwh, settings);
+  const todaySavings = Math.max(0, todayConsumptionCost - todayGridCost);
 
   const cards = [
     {
-      label: 'Solar Generation',
+      label: t.solarGeneration,
       value: formatWatts(inverter.pvPowerW),
-      sub: `Today: ${today.pvKwh.toFixed(2)} kWh • Peak: ${formatWatts(today.peakPvW)}`,
+      sub: `${t.today}: ${today.pvKwh.toFixed(2)} ${t.unitKwh} • ${t.peak}: ${formatWatts(today.peakPvW)}`,
       icon: Sun,
       accent: 'text-amber-400',
       bg: 'bg-amber-500/10 border-amber-500/20',
     },
     {
-      label: 'Home Consumption',
+      label: t.homeConsumption,
       value: formatWatts(inverter.loadPowerW),
-      sub: `Today: ${today.loadKwh.toFixed(2)} kWh • Peak: ${formatWatts(today.peakLoadW)}`,
+      sub: `${t.today}: ${today.loadKwh.toFixed(2)} ${t.unitKwh} • ${t.peak}: ${formatWatts(today.peakLoadW)}`,
       icon: Flame,
       accent: 'text-rose-400',
       bg: 'bg-rose-500/10 border-rose-500/20',
     },
     {
-      label: 'Lithium Battery',
+      label: t.lithiumBattery,
       value: `${battery.soc}%`,
       sub:
         timeToFull !== null
-          ? `Charging • Full in ~${formatDurationHours(timeToFull)}`
-          : `Est. ${formatDurationHours(backupHours)} left at ${formatWatts(inverter.loadPowerW)}`,
+          ? `${t.chargingFullIn} ~${formatDurationHours(timeToFull, lang)}`
+          : `${t.estLeftAt} ${formatDurationHours(backupHours, lang)} ${t.leftAt} ${formatWatts(inverter.loadPowerW)}`,
       icon: Battery,
       accent: battery.soc > 40 ? 'text-emerald-400' : battery.soc > 20 ? 'text-amber-400' : 'text-rose-400',
       bg:
@@ -59,25 +66,25 @@ export function KpiGrid({ data, settings }: KpiGridProps) {
           : 'bg-amber-500/10 border-amber-500/20',
     },
     {
-      label: 'Power Hours Today',
-      value: `${today.solarActiveHours.toFixed(1)}h Sun`,
-      sub: `Peak Sun: ${today.peakSunHours.toFixed(1)}h • Battery: ${today.batteryPowerHours.toFixed(1)}h`,
+      label: t.powerHoursToday,
+      value: `${today.solarActiveHours.toFixed(1)}h ${t.sun}`,
+      sub: `${t.peakSun}: ${today.peakSunHours.toFixed(1)}h • ${t.battery}: ${today.batteryPowerHours.toFixed(1)}h`,
       icon: Clock,
       accent: 'text-sky-400',
       bg: 'bg-sky-500/10 border-sky-500/20',
     },
     {
-      label: 'Grid & Self-Sufficiency',
-      value: `${today.selfSufficiencyPct}% Solar`,
-      sub: `Grid Today: ${today.gridKwh.toFixed(2)} kWh (${today.gridPowerHours.toFixed(1)}h)`,
+      label: t.gridSelfSufficiency,
+      value: `${today.selfSufficiencyPct}% ${t.solar}`,
+      sub: `${t.gridToday}: ${today.gridKwh.toFixed(2)} ${t.unitKwh} (${today.gridPowerHours.toFixed(1)}h)`,
       icon: Zap,
       accent: 'text-violet-400',
       bg: 'bg-violet-500/10 border-violet-500/20',
     },
     {
-      label: 'Est. Solar Value Today',
-      value: `${settings.currencySymbol}${solarSavings}`,
-      sub: `Grid cost: ${settings.currencySymbol}${gridCost} @ ${settings.currencySymbol}${settings.electricityRatePerKwh}/kWh`,
+      label: t.consumptionCostToday,
+      value: formatMoney(todayConsumptionCost, settings, lang),
+      sub: `${t.gridBill}: ${formatMoney(todayGridCost, settings, lang)} • ${t.savedBySolar}: ${formatMoney(todaySavings, settings, lang)}`,
       icon: Coins,
       accent: 'text-teal-400',
       bg: 'bg-teal-500/10 border-teal-500/20',

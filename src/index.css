@@ -7,7 +7,11 @@
       radial-gradient(ellipse 80% 50% at 20% -10%, rgba(245, 158, 11, 0.11), transparent 60%),
       radial-gradient(ellipse 60% 45% at 85% 0%, rgba(16, 185, 129, 0.08), transparent 55%);
     min-height: 100vh;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', 'Cairo', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  html[dir="rtl"] body {
+    font-family: 'Cairo', 'Inter', system-ui, -apple-system, sans-serif;
   }
 }
 

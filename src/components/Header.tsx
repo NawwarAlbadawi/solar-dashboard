@@ -1,15 +1,26 @@
-import { RefreshCw, Settings, Sun, Wifi, WifiOff, AlertTriangle } from 'lucide-react';
+import { Languages, RefreshCw, Settings, Sun, Wifi, WifiOff, AlertTriangle } from 'lucide-react';
+import { translations, type Lang } from '../i18n/translations';
 import type { LatestData } from '../types/solar';
 import { detectSystemVoltage, formatRelativeTime } from '../utils/calculations';
 
 interface HeaderProps {
   data: LatestData;
+  lang: Lang;
   isRefreshing: boolean;
   onRefresh: () => void;
+  onToggleLang: () => void;
   onOpenSettings: () => void;
 }
 
-export function Header({ data, isRefreshing, onRefresh, onOpenSettings }: HeaderProps) {
+export function Header({
+  data,
+  lang,
+  isRefreshing,
+  onRefresh,
+  onToggleLang,
+  onOpenSettings,
+}: HeaderProps) {
+  const t = translations[lang];
   const { inverter, battery, mode, updatedAt } = data;
   const isDemo = mode === 'demo';
   const sysV = detectSystemVoltage(battery.voltageV || inverter.batteryVoltageV);
@@ -24,20 +35,20 @@ export function Header({ data, isRefreshing, onRefresh, onOpenSettings }: Header
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-base font-semibold tracking-tight text-white sm:text-lg">
-                FSolar Dashboard
+                {t.appTitle}
               </h1>
-              <span className="rounded-full border border-slate-700 bg-slate-900 px-2.5 py-0.5 text-xs font-medium text-amber-300">
+              <span className="rounded-full border border-slate-700 bg-slate-900 px-2.5 py-0.5 text-xs font-medium text-amber-300" dir="ltr">
                 {inverter.model} • {(inverter.ratedPowerW / 1000).toFixed(1).replace(/\.0$/, '')}kW {sysV}V
               </span>
               {isDemo ? (
                 <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 text-xs font-medium text-amber-300">
                   <AlertTriangle className="h-3 w-3" />
-                  Demo Data
+                  {t.demoData}
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-300">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-                  Live FSolar Cloud
+                  {t.liveCloud}
                 </span>
               )}
             </div>
@@ -48,13 +59,15 @@ export function Header({ data, isRefreshing, onRefresh, onOpenSettings }: Header
                 ) : (
                   <WifiOff className="h-3.5 w-3.5 text-rose-400" />
                 )}
-                {inverter.online ? 'Inverter Online' : 'Inverter Offline'}
+                {inverter.online ? t.inverterOnline : t.inverterOffline}
               </span>
               <span>•</span>
-              <span>Mode: <strong className="font-medium text-slate-200">{inverter.workMode}</strong></span>
+              <span>
+                {t.mode}: <strong className="font-medium text-slate-200">{inverter.workMode}</strong>
+              </span>
               <span>•</span>
               <span title={new Date(updatedAt).toLocaleString()}>
-                Updated {formatRelativeTime(updatedAt)}
+                {t.updated}: {formatRelativeTime(updatedAt, lang)}
               </span>
             </div>
           </div>
@@ -62,29 +75,38 @@ export function Header({ data, isRefreshing, onRefresh, onOpenSettings }: Header
 
         <div className="flex items-center gap-2">
           <button
+            onClick={onToggleLang}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-300 transition hover:bg-amber-500/20"
+            title="Switch Language / تبديل اللغة"
+          >
+            <Languages className="h-3.5 w-3.5" />
+            {lang === 'en' ? 'العربية' : 'EN'}
+          </button>
+          <button
             onClick={onRefresh}
             disabled={isRefreshing}
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 disabled:opacity-50"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin text-amber-400' : ''}`} />
-            Refresh
+            {t.refresh}
           </button>
           <button
             onClick={onOpenSettings}
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-amber-500/50 hover:bg-slate-800"
           >
             <Settings className="h-3.5 w-3.5 text-slate-300" />
-            System Config
+            {t.systemConfig}
           </button>
         </div>
       </div>
 
       {isDemo && (
         <div className="border-t border-amber-500/20 bg-amber-500/5 px-4 py-1.5 text-center text-xs text-amber-200/90">
-          Showing demo solar telemetry. Fork this repo &amp; add{' '}
-          <code className="rounded bg-slate-900 px-1.5 py-0.5 text-amber-300">FSOLAR_EMAIL</code> &amp;{' '}
-          <code className="rounded bg-slate-900 px-1.5 py-0.5 text-amber-300">FSOLAR_PASSWORD</code> in
-          GitHub Repository Secrets to connect your own Felicity Solar inverter automatically.
+          {t.demoBannerPrefix}{' '}
+          <code className="rounded bg-slate-900 px-1.5 py-0.5 text-amber-300" dir="ltr">FSOLAR_EMAIL</code>{' '}
+          {t.demoBannerMiddle}{' '}
+          <code className="rounded bg-slate-900 px-1.5 py-0.5 text-amber-300" dir="ltr">FSOLAR_PASSWORD</code>{' '}
+          {t.demoBannerSuffix}
         </div>
       )}
     </header>

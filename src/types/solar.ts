@@ -117,11 +117,22 @@ export interface HistoryPoint {
   tempC: number;
 }
 
+export type TariffPreset =
+  | 'syria_residential'
+  | 'syria_commercial'
+  | 'syria_exempt'
+  | 'syria_heavy'
+  | 'custom';
+
+export type SyriaCurrencyMode = 'old' | 'new';
+
 export interface UserSettings {
   batteryCapacityAh: number; // e.g., 200 Ah
   batteryNominalV: number; // e.g., 25.6 V (8S LiFePO4)
   reserveSocPct: number; // e.g., 20% minimum usable SOC
-  electricityRatePerKwh: number; // e.g., 0.18 $/kWh
-  currencySymbol: string; // e.g., '$'
+  tariffPreset: TariffPreset; // Syria new tariff presets or custom
+  syriaCurrencyMode: SyriaCurrencyMode; // 'old' (600 / 1400 SYP) or 'new' (6 / 14 New SYP)
+  electricityRatePerKwh: number; // custom flat rate when tariffPreset === 'custom'
+  currencySymbol: string; // custom currency symbol (e.g. '$', '€')
   inverterEfficiency: number; // e.g., 0.92
 }

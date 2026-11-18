@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Clock, BatteryCharging, Sun, UtilityPole, Gauge } from 'lucide-react';
+import { translations, type Lang } from '../i18n/translations';
 import type { BatteryTelemetry, DailySummary, InverterTelemetry, UserSettings } from '../types/solar';
 import {
   estimateBackupHours,
@@ -14,19 +15,22 @@ interface PowerHoursCardProps {
   inverter: InverterTelemetry;
   battery: BatteryTelemetry;
   settings: UserSettings;
+  lang: Lang;
 }
 
-const LOAD_PRESETS = [
-  { label: 'Night (250W)', watts: 250 },
-  { label: 'Normal (650W)', watts: 650 },
-  { label: 'AC Unit (1.5kW)', watts: 1500 },
-  { label: 'Heavy (2.8kW)', watts: 2800 },
-];
-
-export function PowerHoursCard({ today, inverter, battery, settings }: PowerHoursCardProps) {
+export function PowerHoursCard({ today, inverter, battery, settings, lang }: PowerHoursCardProps) {
+  const t = translations[lang];
+  const maxWatts = Math.max(4000, inverter.ratedPowerW);
   const [simulatedLoadW, setSimulatedLoadW] = useState<number>(
-    Math.max(150, Math.min(3800, inverter.loadPowerW || 600))
+    Math.max(150, Math.min(maxWatts, inverter.loadPowerW || 600))
   );
+
+  const loadPresets = [
+    { label: t.presetNight, watts: 250 },
+    { label: t.presetNormal, watts: 650 },
+    { label: t.presetAc, watts: 1500 },
+    { label: t.presetHeavy, watts: 2800 },
+  ];
 
   const capacityKwh = getBatteryCapacityKwh(battery, settings);
   const usableWh = getUsableRemainingWh(battery.soc, capacityKwh, settings.reserveSocPct);
@@ -51,53 +55,40 @@ export function PowerHoursCard({ today, inverter, battery, settings }: PowerHour
       <div>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-white">Power Hours &amp; Backup Runtime</h2>
-            <p className="text-xs text-slate-400">
-              How your home was powered today + live lithium autonomy calculator
-            </p>
+            <h2 className="text-sm font-semibold text-white">{t.powerHoursTitle}</h2>
+            <p className="text-xs text-slate-400">{t.powerHoursSub}</p>
           </div>
           <Clock className="h-4 w-4 text-sky-400" />
         </div>
 
-        {/* Power source hours segmented bar */}
         <div className="mt-5">
           <div className="mb-1.5 flex items-center justify-between text-xs">
-            <span className="text-slate-400">Today&apos;s Power Source Split</span>
-            <span className="font-medium text-slate-200">{totalTrackedH.toFixed(1)}h logged</span>
+            <span className="text-slate-400">{t.todayPowerSplit}</span>
+            <span className="font-medium text-slate-200">
+              {totalTrackedH.toFixed(1)}h {t.logged}
+            </span>
           </div>
           <div className="flex h-3 w-full overflow-hidden rounded-full bg-slate-800">
-            <div
-              style={{ width: `${solarPct}%` }}
-              className="bg-amber-400 transition-all"
-              title={`Solar Powered: ${today.solarPoweredHours.toFixed(1)}h`}
-            />
-            <div
-              style={{ width: `${battPct}%` }}
-              className="bg-emerald-400 transition-all"
-              title={`Battery Backup: ${today.batteryPowerHours.toFixed(1)}h`}
-            />
-            <div
-              style={{ width: `${gridPct}%` }}
-              className="bg-violet-400 transition-all"
-              title={`Grid Power: ${today.gridPowerHours.toFixed(1)}h`}
-            />
+            <div style={{ width: `${solarPct}%` }} className="bg-amber-400 transition-all" />
+            <div style={{ width: `${battPct}%` }} className="bg-emerald-400 transition-all" />
+            <div style={{ width: `${gridPct}%` }} className="bg-violet-400 transition-all" />
           </div>
 
           <div className="mt-3 grid grid-cols-3 gap-2">
             <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-2.5">
               <div className="flex items-center gap-1 text-[11px] text-amber-300">
-                <Sun className="h-3 w-3" /> Solar
+                <Sun className="h-3 w-3" /> {t.solar}
               </div>
               <div className="mt-0.5 text-sm font-bold text-white">
                 {today.solarPoweredHours.toFixed(1)}h
               </div>
               <div className="text-[10px] text-slate-500">
-                Peak sun: {today.peakSunHours.toFixed(1)}h
+                {t.peakSun}: {today.peakSunHours.toFixed(1)}h
               </div>
             </div>
             <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-2.5">
               <div className="flex items-center gap-1 text-[11px] text-emerald-300">
-                <BatteryCharging className="h-3 w-3" /> Battery
+                <BatteryCharging className="h-3 w-3" /> {t.battery}
               </div>
               <div className="mt-0.5 text-sm font-bold text-white">
                 {today.batteryPowerHours.toFixed(1)}h
@@ -108,13 +99,13 @@ export function PowerHoursCard({ today, inverter, battery, settings }: PowerHour
             </div>
             <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-2.5">
               <div className="flex items-center gap-1 text-[11px] text-violet-300">
-                <UtilityPole className="h-3 w-3" /> Grid
+                <UtilityPole className="h-3 w-3" /> {t.grid}
               </div>
               <div className="mt-0.5 text-sm font-bold text-white">
                 {today.gridPowerHours.toFixed(1)}h
               </div>
               <div className="text-[10px] text-slate-500">
-                {today.gridKwh.toFixed(1)} kWh import
+                {today.gridKwh.toFixed(1)} {t.unitKwh} {t.importLabel}
               </div>
             </div>
           </div>
@@ -126,40 +117,42 @@ export function PowerHoursCard({ today, inverter, battery, settings }: PowerHour
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 text-xs font-medium text-sky-300">
             <Gauge className="h-3.5 w-3.5" />
-            Battery Backup Hours Estimator
+            {t.backupEstimator}
           </div>
           <span className="text-[11px] text-slate-400">
-            Usable: {(usableWh / 1000).toFixed(2)} / {capacityKwh.toFixed(2)} kWh
+            {t.usable}: {(usableWh / 1000).toFixed(2)} / {capacityKwh.toFixed(2)} {t.unitKwh}
           </span>
         </div>
 
-        <div className="mt-2 flex items-baseline justify-between">
+        <div className="mt-2 flex items-baseline justify-between gap-2">
           <div>
-            <span className="text-2xl font-bold text-white">{formatDurationHours(simulatedHours)}</span>
-            <span className="ml-1.5 text-xs text-slate-400">
-              at {formatWatts(simulatedLoadW)} load
+            <span className="text-2xl font-bold text-white">
+              {formatDurationHours(simulatedHours, lang)}
+            </span>
+            <span className="mx-1.5 text-xs text-slate-400">
+              {t.atLoad} {formatWatts(simulatedLoadW)} {t.loadWord}
             </span>
           </div>
           <button
             onClick={() => setSimulatedLoadW(Math.max(100, inverter.loadPowerW))}
             className="text-[11px] font-medium text-amber-400 hover:text-amber-300"
           >
-            Use live ({formatWatts(inverter.loadPowerW)})
+            {t.useLive} ({formatWatts(inverter.loadPowerW)})
           </button>
         </div>
 
         <input
           type="range"
           min={100}
-          max={Math.max(4000, inverter.ratedPowerW)}
+          max={maxWatts}
           step={50}
-          value={Math.min(simulatedLoadW, Math.max(4000, inverter.ratedPowerW))}
+          value={Math.min(simulatedLoadW, maxWatts)}
           onChange={(e) => setSimulatedLoadW(Number(e.target.value))}
           className="mt-2.5 h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-slate-800 accent-sky-400"
         />
 
         <div className="mt-2.5 flex flex-wrap gap-1.5">
-          {LOAD_PRESETS.map((preset) => (
+          {loadPresets.map((preset) => (
             <button
               key={preset.label}
               onClick={() => setSimulatedLoadW(preset.watts)}

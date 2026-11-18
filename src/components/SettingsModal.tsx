@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { X, RotateCcw } from 'lucide-react';
-import type { UserSettings } from '../types/solar';
-import { DEFAULT_SETTINGS } from '../utils/calculations';
+import { translations, type Lang } from '../i18n/translations';
+import type { SyriaCurrencyMode, TariffPreset, UserSettings } from '../types/solar';
+import { DEFAULT_SETTINGS, isSyriaPreset } from '../utils/calculations';
 
 interface SettingsModalProps {
   settings: UserSettings;
+  lang: Lang;
   onSave: (next: UserSettings) => void;
   onClose: () => void;
 }
 
-export function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
+export function SettingsModal({ settings, lang, onSave, onClose }: SettingsModalProps) {
+  const t = translations[lang];
   const [draft, setDraft] = useState<UserSettings>(settings);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -23,8 +26,8 @@ export function SettingsModal({ settings, onSave, onClose }: SettingsModalProps)
       <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-2xl">
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <div>
-            <h3 className="text-base font-semibold text-white">System Configuration</h3>
-            <p className="text-xs text-slate-400">Tune battery &amp; cost settings for accurate backup hours</p>
+            <h3 className="text-base font-semibold text-white">{t.settingsTitle}</h3>
+            <p className="text-xs text-slate-400">{t.settingsSub}</p>
           </div>
           <button
             onClick={onClose}
@@ -37,7 +40,7 @@ export function SettingsModal({ settings, onSave, onClose }: SettingsModalProps)
         <form onSubmit={handleSubmit} className="mt-4 space-y-3.5 text-xs">
           <div className="grid grid-cols-2 gap-3">
             <label className="block">
-              <span className="text-slate-300">Battery Capacity (Ah)</span>
+              <span className="text-slate-300">{t.batteryCapAh}</span>
               <input
                 type="number"
                 min={20}
@@ -49,7 +52,7 @@ export function SettingsModal({ settings, onSave, onClose }: SettingsModalProps)
               />
             </label>
             <label className="block">
-              <span className="text-slate-300">Nominal Voltage (V)</span>
+              <span className="text-slate-300">{t.nominalVoltage}</span>
               <input
                 type="number"
                 min={12}
@@ -63,16 +66,15 @@ export function SettingsModal({ settings, onSave, onClose }: SettingsModalProps)
           </div>
 
           <div className="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-slate-300">
-            Total Battery Bank:{' '}
+            {t.totalBatteryBank}:{' '}
             <strong className="text-emerald-300">
-              {((draft.batteryCapacityAh * draft.batteryNominalV) / 1000).toFixed(2)} kWh
-            </strong>{' '}
-            (e.g. 24V LiFePO4: 25.6V × 200Ah = 5.12kWh • 48V LiFePO4: 51.2V × 100Ah = 5.12kWh)
+              {((draft.batteryCapacityAh * draft.batteryNominalV) / 1000).toFixed(2)} {t.unitKwh}
+            </strong>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <label className="block">
-              <span className="text-slate-300">Reserve Cutoff SOC (%)</span>
+              <span className="text-slate-300">{t.reserveSoc}</span>
               <input
                 type="number"
                 min={0}
@@ -83,7 +85,7 @@ export function SettingsModal({ settings, onSave, onClose }: SettingsModalProps)
               />
             </label>
             <label className="block">
-              <span className="text-slate-300">Inverter Efficiency</span>
+              <span className="text-slate-300">{t.inverterEff}</span>
               <input
                 type="number"
                 min={0.7}
@@ -96,30 +98,64 @@ export function SettingsModal({ settings, onSave, onClose }: SettingsModalProps)
             </label>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          {/* Tariff Preset Selector */}
+          <label className="block">
+            <span className="text-slate-300">{t.tariffPreset}</span>
+            <select
+              value={draft.tariffPreset}
+              onChange={(e) => setDraft({ ...draft, tariffPreset: e.target.value as TariffPreset })}
+              className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus:border-amber-400 focus:outline-none"
+            >
+              <option value="syria_residential">{t.tariffSyriaRes}</option>
+              <option value="syria_commercial">{t.tariffSyriaCom}</option>
+              <option value="syria_exempt">{t.tariffSyriaExempt}</option>
+              <option value="syria_heavy">{t.tariffSyriaHeavy}</option>
+              <option value="custom">{t.tariffCustom}</option>
+            </select>
+          </label>
+
+          {isSyriaPreset(draft.tariffPreset) ? (
             <label className="block">
-              <span className="text-slate-300">Electricity Rate (/kWh)</span>
-              <input
-                type="number"
-                min={0}
-                max={1000}
-                step={0.01}
-                value={draft.electricityRatePerKwh}
-                onChange={(e) => setDraft({ ...draft, electricityRatePerKwh: Number(e.target.value) })}
+              <span className="text-slate-300">{t.syriaCurrencyLabel}</span>
+              <select
+                value={draft.syriaCurrencyMode}
+                onChange={(e) =>
+                  setDraft({ ...draft, syriaCurrencyMode: e.target.value as SyriaCurrencyMode })
+                }
                 className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus:border-amber-400 focus:outline-none"
-              />
+              >
+                <option value="old">{t.oldSyp} (600 / 1,400)</option>
+                <option value="new">{t.newSyp} (6 / 14)</option>
+              </select>
             </label>
-            <label className="block">
-              <span className="text-slate-300">Currency Symbol</span>
-              <input
-                type="text"
-                maxLength={4}
-                value={draft.currencySymbol}
-                onChange={(e) => setDraft({ ...draft, currencySymbol: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus:border-amber-400 focus:outline-none"
-              />
-            </label>
-          </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="text-slate-300">{t.customRateLabel}</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={100000}
+                  step={0.01}
+                  value={draft.electricityRatePerKwh}
+                  onChange={(e) =>
+                    setDraft({ ...draft, electricityRatePerKwh: Number(e.target.value) })
+                  }
+                  className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus:border-amber-400 focus:outline-none"
+                />
+              </label>
+              <label className="block">
+                <span className="text-slate-300">{t.currencySymbolLabel}</span>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={draft.currencySymbol}
+                  onChange={(e) => setDraft({ ...draft, currencySymbol: e.target.value })}
+                  className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus:border-amber-400 focus:outline-none"
+                />
+              </label>
+            </div>
+          )}
 
           <div className="flex items-center justify-between pt-2">
             <button
@@ -127,7 +163,7 @@ export function SettingsModal({ settings, onSave, onClose }: SettingsModalProps)
               onClick={() => setDraft(DEFAULT_SETTINGS)}
               className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-3 py-1.5 text-slate-300 hover:bg-slate-800"
             >
-              <RotateCcw className="h-3.5 w-3.5" /> Reset
+              <RotateCcw className="h-3.5 w-3.5" /> {t.reset}
             </button>
             <div className="flex gap-2">
               <button
@@ -135,13 +171,13 @@ export function SettingsModal({ settings, onSave, onClose }: SettingsModalProps)
                 onClick={onClose}
                 className="rounded-lg border border-slate-700 px-3.5 py-1.5 text-slate-300 hover:bg-slate-800"
               >
-                Cancel
+                {t.cancel}
               </button>
               <button
                 type="submit"
                 className="rounded-lg bg-amber-500 px-4 py-1.5 font-semibold text-slate-950 hover:bg-amber-400"
               >
-                Save Changes
+                {t.saveChanges}
               </button>
             </div>
           </div>

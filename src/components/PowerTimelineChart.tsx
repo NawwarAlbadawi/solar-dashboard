@@ -10,15 +10,18 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { translations, type Lang } from '../i18n/translations';
 import type { HistoryPoint } from '../types/solar';
 
 interface PowerTimelineChartProps {
   history: HistoryPoint[];
+  lang: Lang;
 }
 
 type TimeRange = '24h' | '48h' | '7d';
 
-export function PowerTimelineChart({ history }: PowerTimelineChartProps) {
+export function PowerTimelineChart({ history, lang }: PowerTimelineChartProps) {
+  const t = translations[lang];
   const [range, setRange] = useState<TimeRange>('24h');
   const [showSoc, setShowSoc] = useState(true);
 
@@ -29,7 +32,7 @@ export function PowerTimelineChart({ history }: PowerTimelineChartProps) {
     const cutoff = lastTs - hoursMap[range] * 3600 * 1000;
     const filtered = history.filter((p) => new Date(p.ts).getTime() >= cutoff);
 
-    // Downsample slightly on 7d view for silky-smooth rendering
+    const locale = lang === 'ar' ? 'ar-SY' : undefined;
     const step = range === '7d' && filtered.length > 260 ? Math.ceil(filtered.length / 260) : 1;
     return filtered
       .filter((_, idx) => idx % step === 0 || idx === filtered.length - 1)
@@ -37,24 +40,22 @@ export function PowerTimelineChart({ history }: PowerTimelineChartProps) {
         const d = new Date(p.ts);
         const label =
           range === '7d'
-            ? d.toLocaleDateString(undefined, { weekday: 'short', hour: '2-digit' })
-            : d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+            ? d.toLocaleDateString(locale, { weekday: 'short', hour: '2-digit' })
+            : d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
         return {
           ...p,
           label,
-          fullTime: d.toLocaleString(),
+          fullTime: d.toLocaleString(locale),
         };
       });
-  }, [history, range]);
+  }, [history, range, lang]);
 
   return (
     <div className="rounded-2xl border border-slate-800/90 bg-slate-900/60 p-5 shadow-xl">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-white">Power &amp; Consumption Timeline</h2>
-          <p className="text-xs text-slate-400">
-            Solar PV generation vs. home consumption, grid usage &amp; battery SOC curve
-          </p>
+          <h2 className="text-sm font-semibold text-white">{t.timelineTitle}</h2>
+          <p className="text-xs text-slate-400">{t.timelineSub}</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -65,18 +66,16 @@ export function PowerTimelineChart({ history }: PowerTimelineChartProps) {
               onChange={(e) => setShowSoc(e.target.checked)}
               className="rounded accent-emerald-400"
             />
-            Show SOC %
+            {t.showSoc}
           </label>
 
-          <div className="inline-flex rounded-lg border border-slate-800 bg-slate-950 p-0.5 text-xs">
+          <div className="inline-flex rounded-lg border border-slate-800 bg-slate-950 p-0.5 text-xs" dir="ltr">
             {(['24h', '48h', '7d'] as TimeRange[]).map((r) => (
               <button
                 key={r}
                 onClick={() => setRange(r)}
                 className={`rounded-md px-2.5 py-1 font-medium transition ${
-                  range === r
-                    ? 'bg-amber-500 text-slate-950'
-                    : 'text-slate-400 hover:text-white'
+                  range === r ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 {r.toUpperCase()}
@@ -86,7 +85,7 @@ export function PowerTimelineChart({ history }: PowerTimelineChartProps) {
         </div>
       </div>
 
-      <div className="h-72 w-full sm:h-80">
+      <div className="h-72 w-full sm:h-80" dir="ltr">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
             <defs>
@@ -141,7 +140,7 @@ export function PowerTimelineChart({ history }: PowerTimelineChartProps) {
               }}
               labelFormatter={(_, payload) => payload?.[0]?.payload?.fullTime || ''}
               formatter={(value: number, name: string) => {
-                if (name === 'Battery SOC') return [`${value}%`, name];
+                if (name === t.batterySoc) return [`${value}%`, name];
                 return [`${Math.round(value)} W`, name];
               }}
             />
@@ -151,7 +150,7 @@ export function PowerTimelineChart({ history }: PowerTimelineChartProps) {
               yAxisId="power"
               type="monotone"
               dataKey="pvW"
-              name="Solar PV"
+              name={t.solarPv}
               stroke="#fbbf24"
               strokeWidth={2}
               fill="url(#pvGrad)"
@@ -160,7 +159,7 @@ export function PowerTimelineChart({ history }: PowerTimelineChartProps) {
               yAxisId="power"
               type="monotone"
               dataKey="loadW"
-              name="Home Load"
+              name={t.homeLoad}
               stroke="#fb7185"
               strokeWidth={2}
               fill="url(#loadGrad)"
@@ -169,7 +168,7 @@ export function PowerTimelineChart({ history }: PowerTimelineChartProps) {
               yAxisId="power"
               type="monotone"
               dataKey="gridW"
-              name="Grid Import"
+              name={t.gridImport}
               stroke="#a78bfa"
               strokeWidth={1.8}
               fill="url(#gridGrad)"
@@ -179,7 +178,7 @@ export function PowerTimelineChart({ history }: PowerTimelineChartProps) {
                 yAxisId="soc"
                 type="monotone"
                 dataKey="soc"
-                name="Battery SOC"
+                name={t.batterySoc}
                 stroke="#34d399"
                 strokeWidth={2}
                 dot={false}

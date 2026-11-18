@@ -1,13 +1,16 @@
 import { BatteryCharging, HeartPulse, ShieldCheck, Thermometer } from 'lucide-react';
+import { translations, type Lang } from '../i18n/translations';
 import type { BatteryTelemetry, UserSettings } from '../types/solar';
 import { detectSystemVoltage, formatWatts, getBatteryCapacityKwh } from '../utils/calculations';
 
 interface BatteryPackCardProps {
   battery: BatteryTelemetry;
   settings: UserSettings;
+  lang: Lang;
 }
 
-export function BatteryPackCard({ battery, settings }: BatteryPackCardProps) {
+export function BatteryPackCard({ battery, settings, lang }: BatteryPackCardProps) {
+  const t = translations[lang];
   const sysV = detectSystemVoltage(battery.voltageV, settings.batteryNominalV);
   const capacityKwh = getBatteryCapacityKwh(battery, settings);
   const remainingKwh =
@@ -15,11 +18,20 @@ export function BatteryPackCard({ battery, settings }: BatteryPackCardProps) {
   const socBarColor =
     battery.soc >= 50 ? 'bg-emerald-400' : battery.soc >= 25 ? 'bg-amber-400' : 'bg-rose-500';
 
+  const chargeLabel =
+    battery.chargingState === 'Charging'
+      ? t.charging
+      : battery.chargingState === 'Discharging'
+        ? t.discharging
+        : t.idle;
+
   return (
     <div className="rounded-2xl border border-slate-800/90 bg-slate-900/60 p-5 shadow-xl">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h2 className="text-sm font-semibold text-white">{sysV}V Lithium Battery Pack (BMS)</h2>
+          <h2 className="text-sm font-semibold text-white">
+            {sysV}V {t.lithiumPackTitle}
+          </h2>
           <p className="text-xs text-slate-400">
             {battery.model} • SN: <span className="font-mono text-slate-300">{battery.serialNumber}</span>
           </p>
@@ -34,7 +46,7 @@ export function BatteryPackCard({ battery, settings }: BatteryPackCardProps) {
           }`}
         >
           <BatteryCharging className="h-3.5 w-3.5" />
-          {battery.chargingState}
+          {chargeLabel}
         </span>
       </div>
 
@@ -44,12 +56,10 @@ export function BatteryPackCard({ battery, settings }: BatteryPackCardProps) {
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-white">{battery.soc}%</span>
             <span className="text-xs text-slate-400">
-              {remainingKwh.toFixed(2)} / {capacityKwh.toFixed(2)} kWh stored
+              {remainingKwh.toFixed(2)} / {capacityKwh.toFixed(2)} {t.unitKwh} {t.stored}
             </span>
           </div>
-          <span className="text-xs font-medium text-emerald-300">
-            SOH {battery.soh}%
-          </span>
+          <span className="text-xs font-medium text-emerald-300">SOH {battery.soh}%</span>
         </div>
         <div className="h-3 w-full overflow-hidden rounded-full bg-slate-800">
           <div
@@ -62,40 +72,40 @@ export function BatteryPackCard({ battery, settings }: BatteryPackCardProps) {
       {/* Key Metrics */}
       <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
         <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-2.5">
-          <div className="text-[11px] text-slate-400">Pack Voltage</div>
-          <div className="mt-0.5 text-sm font-bold text-white">{battery.voltageV} V</div>
+          <div className="text-[11px] text-slate-400">{t.packVoltage}</div>
+          <div className="mt-0.5 text-sm font-bold text-white" dir="ltr">{battery.voltageV} V</div>
         </div>
         <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-2.5">
-          <div className="text-[11px] text-slate-400">Current</div>
-          <div className="mt-0.5 text-sm font-bold text-white">
+          <div className="text-[11px] text-slate-400">{t.current}</div>
+          <div className="mt-0.5 text-sm font-bold text-white" dir="ltr">
             {battery.currentA > 0 ? '+' : ''}
             {battery.currentA} A
           </div>
         </div>
         <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-2.5">
-          <div className="text-[11px] text-slate-400">Battery Power</div>
-          <div className="mt-0.5 text-sm font-bold text-white">
+          <div className="text-[11px] text-slate-400">{t.batteryPower}</div>
+          <div className="mt-0.5 text-sm font-bold text-white" dir="ltr">
             {battery.powerW > 0 ? '+' : ''}
             {formatWatts(battery.powerW)}
           </div>
         </div>
         <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-2.5">
           <div className="flex items-center gap-1 text-[11px] text-slate-400">
-            <Thermometer className="h-3 w-3 text-amber-400" /> Temp
+            <Thermometer className="h-3 w-3 text-amber-400" /> {t.temp}
           </div>
-          <div className="mt-0.5 text-sm font-bold text-white">
+          <div className="mt-0.5 text-sm font-bold text-white" dir="ltr">
             {battery.tempMaxC !== null ? `${battery.tempMaxC}°C` : '—'}
           </div>
         </div>
       </div>
 
-      {/* Per-cell voltages (if BMS reports individual cells) */}
+      {/* Per-cell voltages */}
       {battery.cells.length > 0 && (
         <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/70 p-3">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-xs">
             <span className="inline-flex items-center gap-1.5 font-medium text-slate-200">
               <HeartPulse className="h-3.5 w-3.5 text-emerald-400" />
-              Individual Cell Voltages ({battery.cells.length}S LiFePO4)
+              {t.cellVoltages} ({battery.cells.length}S LiFePO4)
             </span>
             {battery.deltaMv !== null && (
               <span
@@ -107,12 +117,12 @@ export function BatteryPackCard({ battery, settings }: BatteryPackCardProps) {
                       : 'bg-rose-500/15 text-rose-300'
                 }`}
               >
-                Δ {battery.deltaMv} mV {battery.deltaMv <= 30 ? '(Balanced)' : '(Check Balance)'}
+                Δ {battery.deltaMv} mV ({battery.deltaMv <= 30 ? t.balanced : t.checkBalance})
               </span>
             )}
           </div>
 
-          <div className="grid grid-cols-4 gap-2 sm:grid-cols-8">
+          <div className="grid grid-cols-4 gap-2 sm:grid-cols-8" dir="ltr">
             {battery.cells.map((cell) => {
               const pct = Math.max(5, Math.min(100, ((cell.mv - 2800) / (3650 - 2800)) * 100));
               return (
@@ -138,10 +148,12 @@ export function BatteryPackCard({ battery, settings }: BatteryPackCardProps) {
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
         <span className="inline-flex items-center gap-1">
           <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-          Charge Limit: {battery.chargeLimitVoltageV ? `${battery.chargeLimitVoltageV}V` : '28.8V'} •
-          Cutoff: {battery.dischargeLimitVoltageV ? `${battery.dischargeLimitVoltageV}V` : '22.4V'}
+          {t.chargeLimit}: {battery.chargeLimitVoltageV ? `${battery.chargeLimitVoltageV}V` : '28.8V'} •{' '}
+          {t.cutoff}: {battery.dischargeLimitVoltageV ? `${battery.dischargeLimitVoltageV}V` : '22.4V'}
         </span>
-        <span>Warnings: {battery.warnCount}</span>
+        <span>
+          {t.warnings}: {battery.warnCount}
+        </span>
       </div>
     </div>
   );
