@@ -1,6 +1,6 @@
 import { BatteryCharging, HeartPulse, ShieldCheck, Thermometer } from 'lucide-react';
 import type { BatteryTelemetry, UserSettings } from '../types/solar';
-import { formatWatts, getBatteryCapacityKwh } from '../utils/calculations';
+import { detectSystemVoltage, formatWatts, getBatteryCapacityKwh } from '../utils/calculations';
 
 interface BatteryPackCardProps {
   battery: BatteryTelemetry;
@@ -8,6 +8,7 @@ interface BatteryPackCardProps {
 }
 
 export function BatteryPackCard({ battery, settings }: BatteryPackCardProps) {
+  const sysV = detectSystemVoltage(battery.voltageV, settings.batteryNominalV);
   const capacityKwh = getBatteryCapacityKwh(battery, settings);
   const remainingKwh =
     battery.remainingEnergyKwh ?? Number(((capacityKwh * battery.soc) / 100).toFixed(2));
@@ -18,7 +19,7 @@ export function BatteryPackCard({ battery, settings }: BatteryPackCardProps) {
     <div className="rounded-2xl border border-slate-800/90 bg-slate-900/60 p-5 shadow-xl">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h2 className="text-sm font-semibold text-white">24V Lithium Battery Pack (BMS)</h2>
+          <h2 className="text-sm font-semibold text-white">{sysV}V Lithium Battery Pack (BMS)</h2>
           <p className="text-xs text-slate-400">
             {battery.model} • SN: <span className="font-mono text-slate-300">{battery.serialNumber}</span>
           </p>

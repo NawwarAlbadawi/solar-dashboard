@@ -151,9 +151,9 @@ export function PowerHoursCard({ today, inverter, battery, settings }: PowerHour
         <input
           type="range"
           min={100}
-          max={4000}
+          max={Math.max(4000, inverter.ratedPowerW)}
           step={50}
-          value={simulatedLoadW}
+          value={Math.min(simulatedLoadW, Math.max(4000, inverter.ratedPowerW))}
           onChange={(e) => setSimulatedLoadW(Number(e.target.value))}
           className="mt-2.5 h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-slate-800 accent-sky-400"
         />

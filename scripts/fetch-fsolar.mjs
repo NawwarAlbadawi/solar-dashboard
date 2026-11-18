@@ -308,7 +308,7 @@ function parseInverterSnapshot(sn, meta, snap) {
 
   return {
     serialNumber: sn,
-    model: meta?.deviceModel || snap.modelName || snap.deviceModel || 'IVEM4024-II',
+    model: meta?.deviceModel || snap.modelName || snap.deviceModel || 'Felicity Solar Inverter',
     deviceName: meta?.deviceName || snap.deviceName || 'Felicity Solar Inverter',
     productType: snap.productTypeEnum || meta?.productTypeEnum || 'HIGH_FREQUENCY_INVERTER',
     online: meta?.status !== '0' && meta?.status !== 0 && meta?.online !== false,
@@ -405,18 +405,20 @@ function parseBatterySnapshot(sn, meta, snap) {
 }
 
 function buildSynthesizedBattery(inv, defaultCapacityAh, defaultNominalV) {
-  const ratedEnergyKwh = Number(((defaultCapacityAh * defaultNominalV) / 1000).toFixed(2));
+  const detectedV = inv.batteryVoltageV > 36 ? 51.2 : inv.batteryVoltageV > 18 ? 25.6 : inv.batteryVoltageV > 8 ? 12.8 : defaultNominalV;
+  const sysLabel = detectedV >= 40 ? '48V' : detectedV >= 20 ? '24V' : '12V';
+  const ratedEnergyKwh = Number(((defaultCapacityAh * detectedV) / 1000).toFixed(2));
   const remainingEnergyKwh = Number(((ratedEnergyKwh * inv.batterySoc) / 100).toFixed(2));
   const chargingState =
     inv.batteryPowerW > 25 ? 'Charging' : inv.batteryPowerW < -25 ? 'Discharging' : 'Idle';
 
   return {
     serialNumber: `${inv.serialNumber}-BMS`,
-    model: '24V Lithium Battery (via Inverter BMS)',
+    model: `${sysLabel} Lithium Battery (via Inverter BMS)`,
     online: inv.online,
     soc: inv.batterySoc,
     soh: 100,
-    voltageV: inv.batteryVoltageV || defaultNominalV,
+    voltageV: inv.batteryVoltageV || detectedV,
     currentA: inv.batteryCurrentA,
     powerW: inv.batteryPowerW,
     chargingState,
@@ -425,8 +427,8 @@ function buildSynthesizedBattery(inv, defaultCapacityAh, defaultNominalV) {
     capacityAh: defaultCapacityAh,
     ratedEnergyKwh,
     remainingEnergyKwh,
-    chargeLimitVoltageV: 28.8,
-    dischargeLimitVoltageV: 22.4,
+    chargeLimitVoltageV: detectedV >= 40 ? 57.6 : detectedV >= 20 ? 28.8 : 14.4,
+    dischargeLimitVoltageV: detectedV >= 40 ? 44.8 : detectedV >= 20 ? 22.4 : 11.2,
     maxCellMv: null,
     minCellMv: null,
     deltaMv: null,
@@ -588,7 +590,7 @@ async function main() {
   if (!inverter && battery) {
     inverter = {
       serialNumber: battery.serialNumber,
-      model: 'IVEM4024-II (Battery Telemetry Only)',
+      model: 'Felicity Solar (Battery Telemetry)',
       deviceName: 'Felicity Solar System',
       productType: 'LITHIUM_BATTERY_PACK',
       online: battery.online,

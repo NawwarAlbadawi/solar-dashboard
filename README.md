@@ -1,66 +1,69 @@
-# Felicity Solar IVEM4024-II — Live Energy Dashboard
+# FSolar Dashboard — Open-Source Felicity Solar Monitor
 
-A clean, dark-mode React dashboard for **Felicity Solar** inverters (tailored for the **IVEM4024-II 4kW 24V** + **24V Lithium Battery**) that pulls live telemetry directly from the **FSolar Cloud API** (`shine-api.felicitysolar.com`) and hosts **100% free on GitHub Pages + GitHub Actions**.
+A modern, open-source React dashboard that replaces the official **FSolar** app for **any Felicity Solar inverter & lithium battery system** (IVEM, IVGM, T-REX, LPBA/LPBF, 12V / 24V / 48V).
+
+Connects to your existing **FSolar Wi-Fi dongle** via the Felicity Cloud API (`shine-api.felicitysolar.com`) and hosts **100% free on GitHub Pages + GitHub Actions** — no paid server, no Raspberry Pi, and your credentials stay encrypted in GitHub Secrets.
+
+## Supported Hardware
+Works automatically with any device connected to your **FSolar / Shine Felicity Solar** account:
+- **Inverters:** High-Frequency & Hybrid inverters (e.g. `IVEM4024-II`, `IVEM5048`, `IVGM`, `T-REX`, etc.)
+- **Batteries:** 12V, 24V, and 48V Felicity Lithium / LiFePO4 battery packs (both direct Wi-Fi BMS packs and BMS data read through the inverter)
 
 ## Features
-- **Live Energy Flow Diagram**: Real-time animated power flow between Solar PV, Grid AC, 24V Lithium Battery, and Home Load.
-- **Power Hours Breakdown**: Automatically tracks **Solar Active Hours**, **Peak Sun Hours**, **Battery Backup Hours**, and **Grid Hours** every day.
-- **Interactive Backup Runtime Simulator**: Slider to calculate exact remaining hours on your 24V lithium battery at any load (250W – 4000W).
-- **Consumption & Production Charts**: 24h / 48h / 7-day interactive power & SOC timeline + 14-day kWh bar chart.
-- **Lithium BMS Diagnostics**: Pack voltage, current, SOC/SOH, temperature, charge/discharge limits, and 8S per-cell voltage balancing (when reported by BMS).
-- **Raw FSolar API Inspector**: Expandable JSON viewer showing every raw field returned by your inverter.
-- **Zero-Cost Hosting**: GitHub Actions fetches data every 10 minutes using encrypted Secrets (your password is never exposed in the browser) and publishes directly to GitHub Pages.
+- **Live Energy Flow Diagram:** Real-time animated power flow between Solar PV, Grid AC, Lithium Battery, and Home Load.
+- **Power Hours Analytics:** Tracks daily **Solar Active Hours**, **Peak Sun Hours**, **Battery Backup Hours**, and **Grid Hours**.
+- **Interactive Backup Runtime Estimator:** Drag the load slider to instantly see how many hours your battery will last at any wattage.
+- **Consumption & Production Charts:** 24h / 48h / 7-day interactive power + SOC timeline and 14-day daily kWh breakdown.
+- **Lithium BMS Diagnostics:** Pack voltage, current, SOC/SOH, temperature, charge/discharge limits, and per-cell voltages (mV balance delta when supported).
+- **Raw API Inspector:** Inspect every raw field returned by your inverter from FSolar Cloud.
 
 ---
 
-## Deploy Free on GitHub (3-Minute Setup)
+## Use It For Your Own Solar System (2-Minute Fork & Deploy)
 
-### 1. Push this project to a GitHub repository
-```bash
-git init
-git add .
-git commit -m "Initial Felicity Solar dashboard"
-git branch -M main
-git remote add origin https://github.com/<YOUR_USERNAME>/<YOUR_REPO>.git
-git push -u origin main
-```
+Anyone with a Felicity Solar system can deploy their own private-credential dashboard for free:
 
-### 2. Enable GitHub Pages
-1. In your GitHub repo, go to **Settings → Pages**.
-2. Wait ~1 minute for the **Deploy Dashboard to GitHub Pages** workflow to finish creating the `gh-pages` branch.
-3. Under **Build and deployment → Source**, choose **Deploy from a branch** → branch **`gh-pages`** → folder **`/ (root)`** → click **Save**.
-4. Your dashboard is now live at `https://<YOUR_USERNAME>.github.io/<YOUR_REPO>/`!
+### Step 1: Fork (or Use Template)
+Click **Fork** in the top-right corner of this GitHub repository to create your own copy.
 
-### 3. Connect Your Real FSolar Account (Encrypted Secrets)
+### Step 2: Enable GitHub Actions & GitHub Pages
+1. In your forked repo, go to **Settings → Actions → General → Workflow permissions** → choose **Read and write permissions** → **Save**.
+2. Go to **Actions → Deploy Dashboard to GitHub Pages → Run workflow** (this creates the `gh-pages` branch).
+3. Go to **Settings → Pages → Build and deployment → Source** → select **Deploy from a branch** → branch **`gh-pages`** → folder **`/ (root)`** → **Save**.
+
+### Step 3: Add Your FSolar Account as Encrypted Secrets
 1. Go to **Settings → Secrets and variables → Actions → Secrets**.
 2. Click **New repository secret** and add:
-   - `FSOLAR_EMAIL` — your FSolar app login email
+   - `FSOLAR_EMAIL` — your FSolar app email
    - `FSOLAR_PASSWORD` — your FSolar app password
-3. *(Optional)* Under the **Variables** tab, add:
-   - `BATTERY_CAPACITY_AH` (e.g. `200` for a 24V 200Ah lithium battery)
-   - `BATTERY_NOMINAL_VOLTAGE` (e.g. `25.6` for 8S LiFePO4)
-   - `SOLAR_TIMEZONE` (e.g. `Asia/Baghdad`, `Africa/Cairo`, `Asia/Beirut`, `Europe/London`)
-4. Go to **Actions → Sync FSolar Live Data → Run workflow** to pull your first live snapshot immediately! After that, it updates automatically every 10 minutes.
+3. *(Optional)* Switch to the **Variables** tab and customize:
+   - `BATTERY_CAPACITY_AH` — your battery capacity in Ah (default: `200`)
+   - `BATTERY_NOMINAL_VOLTAGE` — nominal battery voltage (auto-detected, e.g. `25.6` for 24V LiFePO4, `51.2` for 48V LiFePO4)
+   - `SOLAR_TIMEZONE` — your IANA timezone (e.g. `Asia/Baghdad`, `Africa/Cairo`, `Asia/Beirut`, `Europe/London`, `UTC`)
 
-> **Tip:** Make sure **Settings → Actions → General → Workflow permissions** is set to **Read and write permissions** so the sync bot can push updated JSON files to `gh-pages`.
+### Step 4: Trigger Your First Live Sync
+Go to **Actions → Sync FSolar Live Data → Run workflow**. Within ~15 seconds, your live inverter telemetry will appear at:
+```text
+https://<YOUR_GITHUB_USERNAME>.github.io/<YOUR_REPO_NAME>/
+```
+From then on, GitHub Actions automatically syncs fresh data every **10 minutes** and builds your daily consumption & power-hours history!
+
+> **Privacy Note:** Your `FSOLAR_EMAIL` and `FSOLAR_PASSWORD` are stored in encrypted GitHub Secrets and are **never** committed to the repository or exposed to the browser. Only sanitized power/battery telemetry JSON is published to GitHub Pages.
 
 ---
 
-## Test Locally on Your PC First
+## Local Development & Testing
 ```bash
-# 1. Install dependencies
 npm install
 
-# 2. (Optional) Test with your real FSolar login locally
-cp .env.example .env
-# Edit .env with your FSOLAR_EMAIL and FSOLAR_PASSWORD, then run:
-npm run sync
-
-# 3. Start the React dashboard
+# Preview immediately with built-in demo data
 npm run dev
+
+# Or test with your real FSolar account locally:
+cp .env.example .env
+# Edit .env with your FSOLAR_EMAIL and FSOLAR_PASSWORD
+npm run sync
 ```
 
-To reset back to 7-day IVEM4024-II demo data at any time:
-```bash
-npm run demo-data
-```
+## License
+MIT — free to fork, modify, and share with the Felicity Solar community.

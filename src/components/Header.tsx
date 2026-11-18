@@ -1,6 +1,6 @@
 import { RefreshCw, Settings, Sun, Wifi, WifiOff, AlertTriangle } from 'lucide-react';
 import type { LatestData } from '../types/solar';
-import { formatRelativeTime } from '../utils/calculations';
+import { detectSystemVoltage, formatRelativeTime } from '../utils/calculations';
 
 interface HeaderProps {
   data: LatestData;
@@ -10,8 +10,9 @@ interface HeaderProps {
 }
 
 export function Header({ data, isRefreshing, onRefresh, onOpenSettings }: HeaderProps) {
-  const { inverter, mode, updatedAt } = data;
+  const { inverter, battery, mode, updatedAt } = data;
   const isDemo = mode === 'demo';
+  const sysV = detectSystemVoltage(battery.voltageV || inverter.batteryVoltageV);
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-md">
@@ -23,10 +24,10 @@ export function Header({ data, isRefreshing, onRefresh, onOpenSettings }: Header
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-base font-semibold tracking-tight text-white sm:text-lg">
-                Felicity Solar Command
+                FSolar Dashboard
               </h1>
               <span className="rounded-full border border-slate-700 bg-slate-900 px-2.5 py-0.5 text-xs font-medium text-amber-300">
-                {inverter.model} • {(inverter.ratedPowerW / 1000).toFixed(0)}kW 24V
+                {inverter.model} • {(inverter.ratedPowerW / 1000).toFixed(1).replace(/\.0$/, '')}kW {sysV}V
               </span>
               {isDemo ? (
                 <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 text-xs font-medium text-amber-300">
@@ -80,10 +81,10 @@ export function Header({ data, isRefreshing, onRefresh, onOpenSettings }: Header
 
       {isDemo && (
         <div className="border-t border-amber-500/20 bg-amber-500/5 px-4 py-1.5 text-center text-xs text-amber-200/90">
-          Showing realistic 7-day <strong>IVEM4024-II + 24V Lithium</strong> simulation. Add{' '}
+          Showing demo solar telemetry. Fork this repo &amp; add{' '}
           <code className="rounded bg-slate-900 px-1.5 py-0.5 text-amber-300">FSOLAR_EMAIL</code> &amp;{' '}
           <code className="rounded bg-slate-900 px-1.5 py-0.5 text-amber-300">FSOLAR_PASSWORD</code> in
-          GitHub Repository Secrets to stream your real inverter data automatically every 10 minutes.
+          GitHub Repository Secrets to connect your own Felicity Solar inverter automatically.
         </div>
       )}
     </header>

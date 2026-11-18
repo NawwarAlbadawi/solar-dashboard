@@ -27,6 +27,13 @@ export function saveUserSettings(settings: UserSettings): void {
   }
 }
 
+export function detectSystemVoltage(voltageV: number, fallbackNominalV = 25.6): number {
+  const v = voltageV > 5 ? voltageV : fallbackNominalV;
+  if (v >= 36) return 48;
+  if (v >= 18) return 24;
+  return 12;
+}
+
 export function getBatteryCapacityKwh(battery: BatteryTelemetry, settings: UserSettings): number {
   if (battery.ratedEnergyKwh && battery.ratedEnergyKwh > 0.5) {
     return battery.ratedEnergyKwh;

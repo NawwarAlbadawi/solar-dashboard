@@ -108,8 +108,8 @@ export function PowerFlowCard({ inverter, battery }: PowerFlowCardProps) {
               stroke={inverter.online ? '#f59e0b' : '#ef4444'}
               strokeWidth="2"
             />
-            <text x="45" y="49" textAnchor="middle" fill="#f8fafc" fontSize="10" fontWeight="700">
-              IVEM4024-II
+            <text x="45" y="49" textAnchor="middle" fill="#f8fafc" fontSize="9.5" fontWeight="700">
+              {inverter.model.length > 13 ? `${inverter.model.slice(0, 12)}…` : inverter.model}
             </text>
             <text x="45" y="64" textAnchor="middle" fill="#94a3b8" fontSize="9">
               {inverter.tempC}°C • {inverter.acOutputVoltageV.toFixed(0)}V

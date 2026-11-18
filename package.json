@@ -1,5 +1,6 @@
 {
-  "name": "felicity-solar-dashboard",
+  "name": "fsolar-dashboard",
+  "description": "Open-source React energy dashboard for Felicity Solar (FSolar) inverters and lithium batteries, hosted free on GitHub Pages.",
   "private": true,
   "version": "1.0.0",
   "type": "module",

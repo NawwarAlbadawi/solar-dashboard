@@ -67,7 +67,7 @@ export function SettingsModal({ settings, onSave, onClose }: SettingsModalProps)
             <strong className="text-emerald-300">
               {((draft.batteryCapacityAh * draft.batteryNominalV) / 1000).toFixed(2)} kWh
             </strong>{' '}
-            (common 24V LiFePO4: 100Ah = 2.56kWh, 200Ah = 5.12kWh, 300Ah = 7.68kWh)
+            (e.g. 24V LiFePO4: 25.6V × 200Ah = 5.12kWh • 48V LiFePO4: 51.2V × 100Ah = 5.12kWh)
           </div>
 
           <div className="grid grid-cols-2 gap-3">

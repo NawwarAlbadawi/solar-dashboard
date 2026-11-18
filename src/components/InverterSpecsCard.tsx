@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Code2, Cpu, AlertCircle } from 'lucide-react';
 import type { InverterTelemetry } from '../types/solar';
+import { detectSystemVoltage } from '../utils/calculations';
 
 interface InverterSpecsCardProps {
   inverter: InverterTelemetry;
@@ -8,11 +9,12 @@ interface InverterSpecsCardProps {
 
 export function InverterSpecsCard({ inverter }: InverterSpecsCardProps) {
   const [showRaw, setShowRaw] = useState(false);
+  const sysV = detectSystemVoltage(inverter.batteryVoltageV);
 
   const rows = [
     { label: 'Inverter Model', value: inverter.model },
     { label: 'Serial Number', value: inverter.serialNumber },
-    { label: 'Rated Power', value: `${inverter.ratedPowerW} W (24V DC)` },
+    { label: 'Rated Power', value: `${inverter.ratedPowerW} W (${sysV}V DC)` },
     { label: 'Operating Mode', value: inverter.workMode },
     { label: 'PV Voltage / Current', value: `${inverter.pvVoltageV} V / ${inverter.pvCurrentA} A` },
     { label: 'AC Output', value: `${inverter.acOutputVoltageV} V • ${inverter.acOutputCurrentA} A • ${inverter.acOutputFreqHz} Hz` },
@@ -36,7 +38,7 @@ export function InverterSpecsCard({ inverter }: InverterSpecsCardProps) {
     <div className="rounded-2xl border border-slate-800/90 bg-slate-900/60 p-5 shadow-xl">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-sm font-semibold text-white">IVEM4024-II Full Telemetry</h2>
+          <h2 className="text-sm font-semibold text-white">{inverter.model} Full Telemetry</h2>
           <p className="text-xs text-slate-400">Complete electrical diagnostics &amp; lifetime meters</p>
         </div>
         <Cpu className="h-4 w-4 text-amber-400" />

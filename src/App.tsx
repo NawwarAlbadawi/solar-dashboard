@@ -132,7 +132,7 @@ export default function App() {
       </main>
 
       <footer className="mx-auto mt-10 max-w-7xl border-t border-slate-800/70 px-4 pt-5 text-center text-xs text-slate-500 sm:px-6">
-        Felicity Solar IVEM4024-II Dashboard • Powered by FSolar Cloud API + GitHub Actions &amp; GitHub Pages (100% Free)
+        FSolar Open-Source Dashboard • Works with Felicity Solar Inverters &amp; Lithium Batteries • Hosted Free on GitHub Pages
       </footer>
 
       {showSettings && (
