@@ -51,7 +51,18 @@ for (let i = TOTAL_POINTS; i >= 0; i--) {
   const spike = hash(i * 3.7) > 0.86 ? 480 : 0;
   const loadW = Math.round(baseLoad + spike + (hash(i * 1.9) - 0.5) * 140);
 
-  // Energy balance & grid fallback when battery drops low (<26%)
+  // Realistic Syrian grid rationing pattern: ~3-4 arrivals/day (1.5h - 2h windows) with fluctuating voltage
+  const shift = (dayIndex % 3) * 0.7;
+  const gridWindows = [
+    [2.0 + shift, 3.6 + shift],
+    [9.5 + shift, 11.2 + shift],
+    [16.5 + shift, 18.0 + shift],
+    [21.5 + (shift * 0.4), 23.0 + (shift * 0.4)],
+  ];
+  const gridOn = gridWindows.some(([start, end]) => hour >= start && hour <= end);
+  const gridV = gridOn ? Number((206 + hash(i * 5.1) * 22).toFixed(1)) : 0;
+
+  // Energy balance & grid usage when grid is available and battery needs support
   let gridW = 0;
   let battW = pvW - loadW; // positive = charging, negative = discharging
 
@@ -64,10 +75,10 @@ for (let i = TOTAL_POINTS; i >= 0; i--) {
     battW = 2400;
   }
 
-  if (battW < 0 && soc <= 25) {
-    // Grid kicks in to support load + gentle 500W top-up
-    gridW = loadW + 450;
-    battW = 450;
+  if (gridOn && (battW < 0 && soc <= 45)) {
+    // Grid supports load + gentle battery charging while available
+    gridW = loadW + (soc < 40 ? 550 : 0);
+    battW = soc < 40 ? 550 : 0;
   }
 
   const dtH = INTERVAL_MIN / 60;
@@ -83,6 +94,8 @@ for (let i = TOTAL_POINTS; i >= 0; i--) {
     pvW,
     loadW,
     gridW,
+    gridV,
+    gridOn,
     battW: Math.round(battW),
     soc: Math.round(soc),
     battV,
@@ -107,6 +120,9 @@ for (const [dateKey, pts] of dailyBuckets.entries()) {
   let solarPoweredHours = 0;
   let batteryPowerHours = 0;
   let gridPowerHours = 0;
+  let gridAvailableHours = 0;
+  let gridArrivals = 0;
+  let prevGridOn = false;
   let peakLoadW = 0;
   let peakPvW = 0;
   let minSoc = 100;
@@ -119,6 +135,12 @@ for (const [dateKey, pts] of dailyBuckets.entries()) {
     gridKwh += (p.gridW * dtH) / 1000;
     if (p.battW > 0) battChargeKwh += (p.battW * dtH) / 1000;
     if (p.battW < 0) battDischargeKwh += (Math.abs(p.battW) * dtH) / 1000;
+
+    if (p.gridOn) {
+      gridAvailableHours += dtH;
+      if (!prevGridOn) gridArrivals += 1;
+    }
+    prevGridOn = p.gridOn;
 
     if (p.pvW >= 30) solarActiveHours += dtH;
     if (p.pvW >= p.loadW * 0.6 && p.pvW >= 30) solarPoweredHours += dtH;
@@ -146,6 +168,8 @@ for (const [dateKey, pts] of dailyBuckets.entries()) {
     solarPoweredHours: Number(solarPoweredHours.toFixed(2)),
     batteryPowerHours: Number(batteryPowerHours.toFixed(2)),
     gridPowerHours: Number(gridPowerHours.toFixed(2)),
+    gridAvailableHours: Number(gridAvailableHours.toFixed(2)),
+    gridArrivals,
     peakSunHours: Number(peakSunHours.toFixed(2)),
     peakLoadW,
     peakPvW,
@@ -191,8 +215,8 @@ const latest = {
     acOutputCurrentA: Number((last.loadW / 230.2).toFixed(2)),
     acOutputFreqHz: 50.0,
     gridPowerW: last.gridW,
-    gridVoltageV: last.gridW > 0 ? 228.4 : 229.1,
-    gridFreqHz: 50.0,
+    gridVoltageV: last.gridV,
+    gridFreqHz: last.gridOn ? 50.0 : 0,
     batterySoc: last.soc,
     batteryVoltageV: last.battV,
     batteryCurrentA: Number((last.battW / last.battV).toFixed(2)),

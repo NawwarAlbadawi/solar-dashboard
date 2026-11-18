@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { BatteryPackCard } from './components/BatteryPackCard';
 import { BillCalculatorCard } from './components/BillCalculatorCard';
 import { DailyConsumptionChart } from './components/DailyConsumptionChart';
+import { GridTrackerCard } from './components/GridTrackerCard';
 import { Header } from './components/Header';
 import { InverterSpecsCard } from './components/InverterSpecsCard';
 import { KpiGrid } from './components/KpiGrid';
@@ -141,6 +142,9 @@ export default function App() {
             lang={lang}
           />
         </section>
+
+        {/* Syrian Grid Availability, Arrival Counter & Outage Log */}
+        <GridTrackerCard history={history} inverter={latest.inverter} lang={lang} />
 
         {/* Interactive Power & Consumption Timeline */}
         <PowerTimelineChart history={history} lang={lang} />

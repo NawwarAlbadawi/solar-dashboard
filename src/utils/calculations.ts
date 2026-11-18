@@ -1,5 +1,5 @@
 import type { Lang } from '../i18n/translations';
-import type { BatteryTelemetry, TariffPreset, UserSettings } from '../types/solar';
+import type { BatteryTelemetry, GridSession, HistoryPoint, TariffPreset, UserSettings } from '../types/solar';
 
 /**
  * Official New Electricity Tariffs in Syria (effective late 2025 / 2026)
@@ -250,4 +250,176 @@ export function formatRelativeTime(isoString: string, lang: Lang = 'en'): string
   const diffHr = Math.floor(diffMin / 60);
   if (diffHr < 24) return `${diffHr}h ${diffMin % 60}m ago`;
   return `${Math.floor(diffHr / 24)}d ago`;
+}
+
+export function isPointGridOn(p: HistoryPoint): boolean {
+  if (typeof p.gridOn === 'boolean') return p.gridOn;
+  if (typeof p.gridV === 'number') return p.gridV >= 130 || p.gridW >= 25;
+  return p.gridW >= 25;
+}
+
+export interface GridAnalysis {
+  currentlyOn: boolean;
+  currentVoltageV: number;
+  currentStateDurationHours: number;
+  arrivals24h: number;
+  onHours24h: number;
+  offHours24h: number;
+  avgSessionHours24h: number;
+  arrivals7d: number;
+  onHours7d: number;
+  sessions24h: GridSession[];
+  sessions7d: GridSession[];
+  timeline24h: { ts: string; gridOn: boolean; gridV: number; gridW: number }[];
+}
+
+export function analyzeGridHistory(
+  history: HistoryPoint[],
+  liveGridVoltageV: number,
+  liveGridPowerW: number
+): GridAnalysis {
+  const currentlyOn = liveGridVoltageV >= 130 || liveGridPowerW >= 25;
+
+  if (!history.length) {
+    return {
+      currentlyOn,
+      currentVoltageV: liveGridVoltageV,
+      currentStateDurationHours: 0,
+      arrivals24h: currentlyOn ? 1 : 0,
+      onHours24h: 0,
+      offHours24h: 0,
+      avgSessionHours24h: 0,
+      arrivals7d: currentlyOn ? 1 : 0,
+      onHours7d: 0,
+      sessions24h: [],
+      sessions7d: [],
+      timeline24h: [],
+    };
+  }
+
+  const lastTsMs = new Date(history[history.length - 1].ts).getTime();
+  const cutoff24h = lastTsMs - 24 * 3600 * 1000;
+
+  const extractSessions = (points: HistoryPoint[]): { sessions: GridSession[]; onHours: number; offHours: number } => {
+    const sessions: GridSession[] = [];
+    let onHours = 0;
+    let offHours = 0;
+
+    let active: {
+      startTs: string;
+      endTs: string;
+      durationHours: number;
+      voltSum: number;
+      voltCount: number;
+      minV: number;
+      maxV: number;
+      kwhDrawn: number;
+    } | null = null;
+
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+      const prev = i > 0 ? points[i - 1] : null;
+      let dtH = 10 / 60;
+      if (prev) {
+        const diffH = (new Date(p.ts).getTime() - new Date(prev.ts).getTime()) / 3600000;
+        dtH = Math.max(0.01, Math.min(0.75, diffH));
+      }
+
+      const on = isPointGridOn(p);
+      const v = p.gridV ?? 0;
+
+      if (on) {
+        onHours += dtH;
+        if (!active) {
+          active = {
+            startTs: p.ts,
+            endTs: p.ts,
+            durationHours: dtH,
+            voltSum: v > 0 ? v : 0,
+            voltCount: v > 0 ? 1 : 0,
+            minV: v > 0 ? v : 999,
+            maxV: v > 0 ? v : 0,
+            kwhDrawn: (Math.max(0, p.gridW) * dtH) / 1000,
+          };
+        } else {
+          active.endTs = p.ts;
+          active.durationHours += dtH;
+          if (v > 0) {
+            active.voltSum += v;
+            active.voltCount += 1;
+            active.minV = Math.min(active.minV, v);
+            active.maxV = Math.max(active.maxV, v);
+          }
+          active.kwhDrawn += (Math.max(0, p.gridW) * dtH) / 1000;
+        }
+      } else {
+        offHours += dtH;
+        if (active) {
+          sessions.push({
+            startTs: active.startTs,
+            endTs: active.endTs,
+            durationHours: active.durationHours,
+            avgVoltageV: active.voltCount > 0 ? Math.round(active.voltSum / active.voltCount) : 0,
+            minVoltageV: active.minV === 999 ? 0 : Math.round(active.minV),
+            maxVoltageV: Math.round(active.maxV),
+            kwhDrawn: Number(active.kwhDrawn.toFixed(2)),
+            isOngoing: false,
+          });
+          active = null;
+        }
+      }
+    }
+
+    if (active) {
+      sessions.push({
+        startTs: active.startTs,
+        endTs: active.endTs,
+        durationHours: active.durationHours,
+        avgVoltageV: active.voltCount > 0 ? Math.round(active.voltSum / active.voltCount) : 0,
+        minVoltageV: active.minV === 999 ? 0 : Math.round(active.minV),
+        maxVoltageV: Math.round(active.maxV),
+        kwhDrawn: Number(active.kwhDrawn.toFixed(2)),
+        isOngoing: true,
+      });
+    }
+
+    return { sessions, onHours, offHours };
+  };
+
+  const points24h = history.filter((p) => new Date(p.ts).getTime() >= cutoff24h);
+  const res24h = extractSessions(points24h);
+  const res7d = extractSessions(history);
+
+  // Measure duration of current continuous ON or OFF streak from end of history
+  let currentStateDurationHours = 0;
+  const latestState = isPointGridOn(history[history.length - 1]);
+  for (let i = history.length - 1; i >= 0; i--) {
+    if (isPointGridOn(history[i]) !== latestState) break;
+    const prev = i > 0 ? history[i - 1] : null;
+    const dtH = prev
+      ? Math.max(0.01, Math.min(0.75, (new Date(history[i].ts).getTime() - new Date(prev.ts).getTime()) / 3600000))
+      : 10 / 60;
+    currentStateDurationHours += dtH;
+  }
+
+  return {
+    currentlyOn,
+    currentVoltageV: liveGridVoltageV,
+    currentStateDurationHours,
+    arrivals24h: res24h.sessions.length,
+    onHours24h: Number(res24h.onHours.toFixed(2)),
+    offHours24h: Number(res24h.offHours.toFixed(2)),
+    avgSessionHours24h:
+      res24h.sessions.length > 0 ? Number((res24h.onHours / res24h.sessions.length).toFixed(2)) : 0,
+    arrivals7d: res7d.sessions.length,
+    onHours7d: Number(res7d.onHours.toFixed(2)),
+    sessions24h: res24h.sessions.reverse(),
+    sessions7d: res7d.sessions.reverse(),
+    timeline24h: points24h.map((p) => ({
+      ts: p.ts,
+      gridOn: isPointGridOn(p),
+      gridV: p.gridV ?? 0,
+      gridW: p.gridW,
+    })),
+  };
 }

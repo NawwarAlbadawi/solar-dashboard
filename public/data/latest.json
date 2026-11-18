@@ -1,6 +1,6 @@
 {
   "mode": "demo",
-  "updatedAt": "2026-11-18T22:31:06.018Z",
+  "updatedAt": "2026-11-18T23:12:16.719Z",
   "timeZone": "UTC",
   "devices": [
     {
@@ -33,21 +33,21 @@
     "acOutputVoltageV": 230.2,
     "acOutputCurrentA": 1.37,
     "acOutputFreqHz": 50,
-    "gridPowerW": 766,
-    "gridVoltageV": 228.4,
+    "gridPowerW": 866,
+    "gridVoltageV": 210,
     "gridFreqHz": 50,
-    "batterySoc": 26,
-    "batteryVoltageV": 25.34,
-    "batteryCurrentA": 17.76,
-    "batteryPowerW": 450,
+    "batterySoc": 24,
+    "batteryVoltageV": 25.29,
+    "batteryCurrentA": 21.75,
+    "batteryPowerW": 550,
     "tempC": 30.1,
-    "energyPvTodayKwh": 15.41,
-    "energyPvTotalKwh": 1443.9,
-    "energyLoadTodayKwh": 19.34,
-    "energyLoadTotalKwh": 1331.7,
-    "energyGridImportTodayKwh": 4.25,
-    "energyBatteryChargeTodayKwh": 6.08,
-    "energyBatteryDischargeTodayKwh": 5.76,
+    "energyPvTodayKwh": 15.6,
+    "energyPvTotalKwh": 1444.1,
+    "energyLoadTodayKwh": 19.64,
+    "energyLoadTotalKwh": 1332,
+    "energyGridImportTodayKwh": 2.67,
+    "energyBatteryChargeTodayKwh": 5.79,
+    "energyBatteryDischargeTodayKwh": 7.15,
     "warnCount": 0,
     "lastWarnMsg": null,
     "bmsConnected": true,
@@ -61,67 +61,67 @@
       "acROutVolt": 230.2,
       "acROutFreq": 50,
       "acRInVolt": 229.1,
-      "acRInPower": 766,
-      "emsSoc": 26,
-      "emsVoltage": 25.34,
-      "emsPower": 450,
+      "acRInPower": 866,
+      "emsSoc": 24,
+      "emsVoltage": 25.29,
+      "emsPower": 550,
       "tempMax": 30.1,
-      "ePvToday": 15.41,
-      "eLoadToday": 19.34
+      "ePvToday": 15.6,
+      "eLoadToday": 19.64
     }
   },
   "battery": {
     "serialNumber": "LPBA24200-DEMO-01",
     "model": "24V 200Ah LiFePO4 (8S)",
     "online": true,
-    "soc": 26,
+    "soc": 24,
     "soh": 99,
-    "voltageV": 25.34,
-    "currentA": 17.76,
-    "powerW": 450,
+    "voltageV": 25.29,
+    "currentA": 21.75,
+    "powerW": 550,
     "chargingState": "Charging",
     "tempMaxC": 27.4,
     "tempMinC": 25.8,
     "capacityAh": 200,
     "ratedEnergyKwh": 5.12,
-    "remainingEnergyKwh": 1.33,
+    "remainingEnergyKwh": 1.23,
     "chargeLimitVoltageV": 28.8,
     "dischargeLimitVoltageV": 22.4,
-    "maxCellMv": 3172,
-    "minCellMv": 3164,
+    "maxCellMv": 3165,
+    "minCellMv": 3157,
     "deltaMv": 8,
     "cells": [
       {
         "index": 1,
-        "mv": 3164
+        "mv": 3157
       },
       {
         "index": 2,
-        "mv": 3168
+        "mv": 3161
       },
       {
         "index": 3,
-        "mv": 3172
+        "mv": 3165
       },
       {
         "index": 4,
-        "mv": 3164
+        "mv": 3157
       },
       {
         "index": 5,
-        "mv": 3168
+        "mv": 3161
       },
       {
         "index": 6,
-        "mv": 3172
+        "mv": 3165
       },
       {
         "index": 7,
-        "mv": 3164
+        "mv": 3157
       },
       {
         "index": 8,
-        "mv": 3168
+        "mv": 3161
       }
     ],
     "cellTempsC": [
@@ -135,21 +135,23 @@
   },
   "today": {
     "date": "2026-11-18",
-    "pvKwh": 15.41,
-    "loadKwh": 19.34,
-    "gridKwh": 4.25,
-    "battChargeKwh": 6.08,
-    "battDischargeKwh": 5.76,
+    "pvKwh": 15.6,
+    "loadKwh": 19.64,
+    "gridKwh": 2.67,
+    "battChargeKwh": 5.79,
+    "battDischargeKwh": 7.15,
     "solarActiveHours": 12,
     "solarPoweredHours": 10.5,
-    "batteryPowerHours": 7.83,
-    "gridPowerHours": 4.33,
-    "peakSunHours": 5.69,
+    "batteryPowerHours": 10.33,
+    "gridPowerHours": 2.5,
+    "gridAvailableHours": 5.83,
+    "gridArrivals": 5,
+    "peakSunHours": 5.68,
     "peakLoadW": 1784,
-    "peakPvW": 2709,
-    "minSoc": 22,
+    "peakPvW": 2747,
+    "minSoc": 20,
     "maxSoc": 100,
-    "selfSufficiencyPct": 78,
-    "samples": 136
+    "selfSufficiencyPct": 86,
+    "samples": 140
   }
 }

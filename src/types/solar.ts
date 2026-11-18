@@ -86,6 +86,8 @@ export interface DailySummary {
   solarPoweredHours: number;
   batteryPowerHours: number;
   gridPowerHours: number;
+  gridAvailableHours?: number;
+  gridArrivals?: number;
   peakSunHours: number;
   peakLoadW: number;
   peakPvW: number;
@@ -110,11 +112,24 @@ export interface HistoryPoint {
   pvW: number;
   loadW: number;
   gridW: number;
+  gridV?: number;
+  gridOn?: boolean;
   battW: number;
   soc: number;
   battV: number;
   pvV: number;
   tempC: number;
+}
+
+export interface GridSession {
+  startTs: string;
+  endTs: string;
+  durationHours: number;
+  avgVoltageV: number;
+  minVoltageV: number;
+  maxVoltageV: number;
+  kwhDrawn: number;
+  isOngoing: boolean;
 }
 
 export type TariffPreset =

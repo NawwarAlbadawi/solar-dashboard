@@ -449,6 +449,9 @@ function recomputeDailySummary(dateKey, dayPoints, latestInverter) {
   let solarPoweredHours = 0;
   let batteryPowerHours = 0;
   let gridPowerHours = 0;
+  let gridAvailableHours = 0;
+  let gridArrivals = 0;
+  let prevGridOn = false;
   let peakLoadW = 0;
   let peakPvW = 0;
   let minSoc = 100;
@@ -468,6 +471,13 @@ function recomputeDailySummary(dateKey, dayPoints, latestInverter) {
     gridKwhInt += (Math.max(0, p.gridW) * dtHours) / 1000;
     if (p.battW > 0) battChargeKwhInt += (p.battW * dtHours) / 1000;
     if (p.battW < 0) battDischargeKwhInt += (Math.abs(p.battW) * dtHours) / 1000;
+
+    const isGridOn = p.gridOn ?? ((p.gridV ?? 0) >= 130 || p.gridW >= 25);
+    if (isGridOn) {
+      gridAvailableHours += dtHours;
+      if (!prevGridOn) gridArrivals += 1;
+    }
+    prevGridOn = isGridOn;
 
     if (p.pvW >= 30) solarActiveHours += dtHours;
     if (p.pvW >= p.loadW * 0.6 && p.pvW >= 30) {
@@ -504,6 +514,8 @@ function recomputeDailySummary(dateKey, dayPoints, latestInverter) {
     solarPoweredHours: Number(solarPoweredHours.toFixed(2)),
     batteryPowerHours: Number(batteryPowerHours.toFixed(2)),
     gridPowerHours: Number(gridPowerHours.toFixed(2)),
+    gridAvailableHours: Number(gridAvailableHours.toFixed(2)),
+    gridArrivals,
     peakSunHours: Number(peakSunHours.toFixed(2)),
     peakLoadW: Math.round(peakLoadW),
     peakPvW: Math.round(peakPvW),
@@ -651,11 +663,14 @@ async function main() {
   const existingDaily = wasDemo ? [] : readJsonSafe(dailyPath, []);
 
   const tsIso = now.toISOString();
+  const gridOnNow = inverter.gridVoltageV >= 130 || inverter.gridPowerW >= 25;
   const newPoint = {
     ts: tsIso,
     pvW: inverter.pvPowerW,
     loadW: inverter.loadPowerW,
     gridW: inverter.gridPowerW,
+    gridV: inverter.gridVoltageV,
+    gridOn: gridOnNow,
     battW: battery.powerW,
     soc: battery.soc,
     battV: battery.voltageV,
