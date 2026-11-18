@@ -1,0 +1,51 @@
+name: Deploy Dashboard to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build React dashboard
+        run: npm run build
+
+      - name: Preserve live FSolar data from gh-pages if present
+        run: |
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+            git fetch origin gh-pages --depth=1
+            if git show origin/gh-pages:data/latest.json >/tmp/prev-latest.json 2>/dev/null; then
+              if grep -q '"mode": "live"' /tmp/prev-latest.json; then
+                echo "Preserving existing live FSolar data..."
+                rm -rf dist/data
+                mkdir -p dist/data
+                git show origin/gh-pages:data/latest.json > dist/data/latest.json
+                git show origin/gh-pages:data/history.json > dist/data/history.json || true
+                git show origin/gh-pages:data/daily.json > dist/data/daily.json || true
+              fi
+            fi
+          fi
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          keep_files: false

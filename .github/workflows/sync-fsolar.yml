@@ -1,0 +1,58 @@
+name: Sync FSolar Live Data
+
+on:
+  schedule:
+    # Runs every 10 minutes (GitHub may jitter by a few minutes on free tier)
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsolar-data-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main (for collector script)
+        uses: actions/checkout@v4
+        with:
+          path: repo-main
+
+      - name: Checkout gh-pages (where live JSON is hosted)
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: repo-pages
+          fetch-depth: 1
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Fetch live Felicity Solar telemetry
+        env:
+          FSOLAR_EMAIL: ${{ secrets.FSOLAR_EMAIL }}
+          FSOLAR_PASSWORD: ${{ secrets.FSOLAR_PASSWORD }}
+          BATTERY_CAPACITY_AH: ${{ vars.BATTERY_CAPACITY_AH || '200' }}
+          BATTERY_NOMINAL_VOLTAGE: ${{ vars.BATTERY_NOMINAL_VOLTAGE || '25.6' }}
+          SOLAR_TIMEZONE: ${{ vars.SOLAR_TIMEZONE || 'UTC' }}
+        run: |
+          node repo-main/scripts/fetch-fsolar.mjs --out-dir repo-pages/data
+
+      - name: Publish updated telemetry to GitHub Pages
+        working-directory: repo-pages
+        run: |
+          git config user.name "fsolar-sync-bot"
+          git config user.email "fsolar-sync-bot@users.noreply.github.com"
+          git add data/latest.json data/history.json data/daily.json
+          if git diff --cached --quiet; then
+            echo "No telemetry changes to commit."
+          else
+            git commit -m "chore(data): sync FSolar telemetry $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git push origin gh-pages
+          fi

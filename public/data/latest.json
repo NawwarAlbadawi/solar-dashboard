@@ -1,0 +1,155 @@
+{
+  "mode": "demo",
+  "updatedAt": "2026-11-18T22:31:06.018Z",
+  "timeZone": "UTC",
+  "devices": [
+    {
+      "serialNumber": "IVEM4024-DEMO-01",
+      "type": "HIGH_FREQUENCY_INVERTER",
+      "model": "IVEM4024-II",
+      "online": true
+    },
+    {
+      "serialNumber": "LPBA24200-DEMO-01",
+      "type": "LITHIUM_BATTERY_PACK",
+      "model": "24V 200Ah LiFePO4",
+      "online": true
+    }
+  ],
+  "inverter": {
+    "serialNumber": "IVEM4024-DEMO-01",
+    "model": "IVEM4024-II",
+    "deviceName": "Home Solar IVEM4024-II",
+    "productType": "HIGH_FREQUENCY_INVERTER",
+    "online": true,
+    "firmwareVersion": "v2.4.18",
+    "ratedPowerW": 4000,
+    "workMode": "Utility / Grid",
+    "pvPowerW": 0,
+    "pvVoltageV": 0,
+    "pvCurrentA": 0,
+    "loadPowerW": 316,
+    "loadPercent": 7.9,
+    "acOutputVoltageV": 230.2,
+    "acOutputCurrentA": 1.37,
+    "acOutputFreqHz": 50,
+    "gridPowerW": 766,
+    "gridVoltageV": 228.4,
+    "gridFreqHz": 50,
+    "batterySoc": 26,
+    "batteryVoltageV": 25.34,
+    "batteryCurrentA": 17.76,
+    "batteryPowerW": 450,
+    "tempC": 30.1,
+    "energyPvTodayKwh": 15.41,
+    "energyPvTotalKwh": 1443.9,
+    "energyLoadTodayKwh": 19.34,
+    "energyLoadTotalKwh": 1331.7,
+    "energyGridImportTodayKwh": 4.25,
+    "energyBatteryChargeTodayKwh": 6.08,
+    "energyBatteryDischargeTodayKwh": 5.76,
+    "warnCount": 0,
+    "lastWarnMsg": null,
+    "bmsConnected": true,
+    "wifiSignalDbm": -56,
+    "rawSnapshot": {
+      "productTypeEnum": "HIGH_FREQUENCY_INVERTER",
+      "modelName": "IVEM4024-II",
+      "pvTotalPower": 0,
+      "pvVolt": 0,
+      "acTotalOutActPower": 316,
+      "acROutVolt": 230.2,
+      "acROutFreq": 50,
+      "acRInVolt": 229.1,
+      "acRInPower": 766,
+      "emsSoc": 26,
+      "emsVoltage": 25.34,
+      "emsPower": 450,
+      "tempMax": 30.1,
+      "ePvToday": 15.41,
+      "eLoadToday": 19.34
+    }
+  },
+  "battery": {
+    "serialNumber": "LPBA24200-DEMO-01",
+    "model": "24V 200Ah LiFePO4 (8S)",
+    "online": true,
+    "soc": 26,
+    "soh": 99,
+    "voltageV": 25.34,
+    "currentA": 17.76,
+    "powerW": 450,
+    "chargingState": "Charging",
+    "tempMaxC": 27.4,
+    "tempMinC": 25.8,
+    "capacityAh": 200,
+    "ratedEnergyKwh": 5.12,
+    "remainingEnergyKwh": 1.33,
+    "chargeLimitVoltageV": 28.8,
+    "dischargeLimitVoltageV": 22.4,
+    "maxCellMv": 3172,
+    "minCellMv": 3164,
+    "deltaMv": 8,
+    "cells": [
+      {
+        "index": 1,
+        "mv": 3164
+      },
+      {
+        "index": 2,
+        "mv": 3168
+      },
+      {
+        "index": 3,
+        "mv": 3172
+      },
+      {
+        "index": 4,
+        "mv": 3164
+      },
+      {
+        "index": 5,
+        "mv": 3168
+      },
+      {
+        "index": 6,
+        "mv": 3172
+      },
+      {
+        "index": 7,
+        "mv": 3164
+      },
+      {
+        "index": 8,
+        "mv": 3168
+      }
+    ],
+    "cellTempsC": [
+      26.2,
+      26.8,
+      27.4,
+      25.8
+    ],
+    "warnCount": 0,
+    "warnMsg": null
+  },
+  "today": {
+    "date": "2026-11-18",
+    "pvKwh": 15.41,
+    "loadKwh": 19.34,
+    "gridKwh": 4.25,
+    "battChargeKwh": 6.08,
+    "battDischargeKwh": 5.76,
+    "solarActiveHours": 12,
+    "solarPoweredHours": 10.5,
+    "batteryPowerHours": 7.83,
+    "gridPowerHours": 4.33,
+    "peakSunHours": 5.69,
+    "peakLoadW": 1784,
+    "peakPvW": 2709,
+    "minSoc": 22,
+    "maxSoc": 100,
+    "selfSufficiencyPct": 78,
+    "samples": 136
+  }
+}

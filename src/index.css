@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #060b16;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(245, 158, 11, 0.11), transparent 60%),
+      radial-gradient(ellipse 60% 45% at 85% 0%, rgba(16, 185, 129, 0.08), transparent 55%);
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* Animated energy flow dashes for SVG power flow diagram */
+@keyframes flowDash {
+  from {
+    stroke-dashoffset: 32;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes flowDashReverse {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 32;
+  }
+}
+
+.flow-active {
+  stroke-dasharray: 7 9;
+  animation: flowDash 1.1s linear infinite;
+}
+
+.flow-active-fast {
+  stroke-dasharray: 8 8;
+  animation: flowDash 0.65s linear infinite;
+}
+
+.flow-active-reverse {
+  stroke-dasharray: 7 9;
+  animation: flowDashReverse 1.1s linear infinite;
+}
+
+/* Subtle custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0b1220;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}

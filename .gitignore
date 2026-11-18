@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+dist/
+
+# Local secrets (NEVER commit your FSolar credentials!)
+.env
+.env.local
+.fsolar-token.json
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
