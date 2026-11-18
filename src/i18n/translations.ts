@@ -180,6 +180,12 @@ export const translations = {
     reset: 'Reset',
     cancel: 'Cancel',
     saveChanges: 'Save Changes',
+
+    // Mobile Bottom Navigation
+    navOverview: 'Overview',
+    navCost: 'Bill',
+    navCharts: 'Charts',
+    navBattery: 'Battery',
   },
   ar: {
     appTitle: 'لوحة الطاقة الشمسية FSolar',
@@ -360,6 +366,12 @@ export const translations = {
     reset: 'إعادة ضبط',
     cancel: 'إلغاء',
     saveChanges: 'حفظ الإعدادات',
+
+    // Mobile Bottom Navigation
+    navOverview: 'الرئيسية',
+    navCost: 'الفاتورة',
+    navCharts: 'المخططات',
+    navBattery: 'البطارية',
   },
 } as const;
 

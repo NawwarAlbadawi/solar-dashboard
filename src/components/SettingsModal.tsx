@@ -22,8 +22,10 @@ export function SettingsModal({ settings, lang, onSave, onClose }: SettingsModal
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/80 p-0 backdrop-blur-sm sm:items-center sm:p-4">
+      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-2xl border border-slate-700 bg-slate-900 p-5 pb-safe shadow-2xl sm:rounded-2xl">
+        {/* Mobile sheet drag handle */}
+        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-slate-700 sm:hidden" />
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <div>
             <h3 className="text-base font-semibold text-white">{t.settingsTitle}</h3>

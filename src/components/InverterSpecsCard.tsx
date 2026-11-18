@@ -53,7 +53,7 @@ export function InverterSpecsCard({ inverter, lang }: InverterSpecsCardProps) {
   ];
 
   return (
-    <div className="rounded-2xl border border-slate-800/90 bg-slate-900/60 p-5 shadow-xl">
+    <div className="rounded-2xl border border-slate-800/90 bg-slate-900/60 p-4 shadow-xl sm:p-5">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-white">

@@ -5,6 +5,7 @@ import { DailyConsumptionChart } from './components/DailyConsumptionChart';
 import { Header } from './components/Header';
 import { InverterSpecsCard } from './components/InverterSpecsCard';
 import { KpiGrid } from './components/KpiGrid';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { PowerFlowCard } from './components/PowerFlowCard';
 import { PowerHoursCard } from './components/PowerHoursCard';
 import { PowerTimelineChart } from './components/PowerTimelineChart';
@@ -106,7 +107,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen pb-12">
+    <div id="section-overview" className="min-h-screen pb-24 md:pb-12">
       <Header
         data={latest}
         lang={lang}
@@ -116,7 +117,7 @@ export default function App() {
         onOpenSettings={() => setShowSettings(true)}
       />
 
-      <main className="mx-auto max-w-7xl space-y-5 px-4 pt-5 sm:px-6">
+      <main className="mx-auto max-w-7xl space-y-4 px-3 pt-4 sm:space-y-5 sm:px-6 sm:pt-5">
         {/* Top KPI Summary Cards */}
         <KpiGrid data={latest} settings={settings} lang={lang} />
 
@@ -130,7 +131,7 @@ export default function App() {
         />
 
         {/* Live Energy Flow + Power Hours & Backup Estimator */}
-        <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <section className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-2">
           <PowerFlowCard inverter={latest.inverter} battery={latest.battery} lang={lang} />
           <PowerHoursCard
             today={latest.today}
@@ -145,18 +146,20 @@ export default function App() {
         <PowerTimelineChart history={history} lang={lang} />
 
         {/* Daily Energy Consumption + Lithium Battery Pack & Full Telemetry */}
-        <section className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+        <section className="grid grid-cols-1 gap-4 sm:gap-5 xl:grid-cols-2">
           <DailyConsumptionChart daily={daily} settings={settings} lang={lang} />
-          <div className="space-y-5">
+          <div id="section-battery" className="scroll-mt-20 space-y-4 sm:space-y-5">
             <BatteryPackCard battery={latest.battery} settings={settings} lang={lang} />
             <InverterSpecsCard inverter={latest.inverter} lang={lang} />
           </div>
         </section>
       </main>
 
-      <footer className="mx-auto mt-10 max-w-7xl border-t border-slate-800/70 px-4 pt-5 text-center text-xs text-slate-500 sm:px-6">
+      <footer className="mx-auto mt-8 max-w-7xl border-t border-slate-800/70 px-4 pt-5 text-center text-xs text-slate-500 sm:mt-10 sm:px-6">
         {t.footerText}
       </footer>
+
+      <MobileBottomNav lang={lang} />
 
       {showSettings && (
         <SettingsModal

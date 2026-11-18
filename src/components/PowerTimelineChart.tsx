@@ -51,15 +51,15 @@ export function PowerTimelineChart({ history, lang }: PowerTimelineChartProps) {
   }, [history, range, lang]);
 
   return (
-    <div className="rounded-2xl border border-slate-800/90 bg-slate-900/60 p-5 shadow-xl">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div id="section-charts" className="scroll-mt-20 rounded-2xl border border-slate-800/90 bg-slate-900/60 p-4 shadow-xl sm:p-5">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div>
           <h2 className="text-sm font-semibold text-white">{t.timelineTitle}</h2>
           <p className="text-xs text-slate-400">{t.timelineSub}</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-950 px-2.5 py-1 text-xs text-slate-300">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
+          <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-300 sm:py-1">
             <input
               type="checkbox"
               checked={showSoc}
@@ -74,7 +74,7 @@ export function PowerTimelineChart({ history, lang }: PowerTimelineChartProps) {
               <button
                 key={r}
                 onClick={() => setRange(r)}
-                className={`rounded-md px-2.5 py-1 font-medium transition ${
+                className={`rounded-md px-3 py-1.5 font-medium transition sm:px-2.5 sm:py-1 ${
                   range === r ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -85,7 +85,7 @@ export function PowerTimelineChart({ history, lang }: PowerTimelineChartProps) {
         </div>
       </div>
 
-      <div className="h-72 w-full sm:h-80" dir="ltr">
+      <div className="h-60 w-full sm:h-72 lg:h-80" dir="ltr">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
             <defs>

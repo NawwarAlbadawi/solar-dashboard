@@ -148,15 +148,15 @@ export function PowerHoursCard({ today, inverter, battery, settings, lang }: Pow
           step={50}
           value={Math.min(simulatedLoadW, maxWatts)}
           onChange={(e) => setSimulatedLoadW(Number(e.target.value))}
-          className="mt-2.5 h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-slate-800 accent-sky-400"
+          className="mt-3 h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-800 accent-sky-400 sm:mt-2.5 sm:h-1.5"
         />
 
-        <div className="mt-2.5 flex flex-wrap gap-1.5">
+        <div className="mt-3 grid grid-cols-2 gap-1.5 sm:mt-2.5 sm:flex sm:flex-wrap">
           {loadPresets.map((preset) => (
             <button
               key={preset.label}
               onClick={() => setSimulatedLoadW(preset.watts)}
-              className={`rounded-md border px-2 py-0.5 text-[11px] transition ${
+              className={`rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition sm:rounded-md sm:px-2 sm:py-0.5 ${
                 simulatedLoadW === preset.watts
                   ? 'border-sky-400/60 bg-sky-500/20 text-sky-200'
                   : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700 hover:text-slate-200'

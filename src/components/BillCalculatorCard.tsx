@@ -70,11 +70,11 @@ export function BillCalculatorCard({
     onUpdateSettings({ ...settings, syriaCurrencyMode });
 
   return (
-    <section className="rounded-2xl border border-slate-800/90 bg-slate-900/60 p-5 shadow-xl">
+    <section id="section-cost" className="scroll-mt-20 rounded-2xl border border-slate-800/90 bg-slate-900/60 p-4 shadow-xl sm:p-5">
       {/* Header + Tariff / Currency Switchers */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="flex items-start gap-2.5">
-          <div className="mt-0.5 rounded-xl border border-teal-500/30 bg-teal-500/10 p-2 text-teal-300">
+          <div className="mt-0.5 shrink-0 rounded-xl border border-teal-500/30 bg-teal-500/10 p-2 text-teal-300">
             <Banknote className="h-4 w-4" />
           </div>
           <div>
@@ -83,11 +83,11 @@ export function BillCalculatorCard({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
           <select
             value={settings.tariffPreset}
             onChange={(e) => setPreset(e.target.value as TariffPreset)}
-            className="rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs font-medium text-slate-100 focus:border-amber-400 focus:outline-none"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-medium text-slate-100 focus:border-amber-400 focus:outline-none sm:w-auto sm:py-1.5"
           >
             <option value="syria_residential">{t.tariffSyriaRes}</option>
             <option value="syria_commercial">{t.tariffSyriaCom}</option>
@@ -97,11 +97,11 @@ export function BillCalculatorCard({
           </select>
 
           {syriaActive && (
-            <div className="inline-flex rounded-lg border border-slate-800 bg-slate-950 p-0.5 text-xs">
+            <div className="grid grid-cols-2 rounded-lg border border-slate-800 bg-slate-950 p-0.5 text-xs sm:inline-flex">
               <button
                 type="button"
                 onClick={() => setCurrencyMode('old')}
-                className={`rounded-md px-2.5 py-1 font-medium transition ${
+                className={`rounded-md px-2.5 py-1.5 font-medium transition sm:py-1 ${
                   settings.syriaCurrencyMode === 'old'
                     ? 'bg-teal-500 text-slate-950'
                     : 'text-slate-400 hover:text-white'
@@ -112,7 +112,7 @@ export function BillCalculatorCard({
               <button
                 type="button"
                 onClick={() => setCurrencyMode('new')}
-                className={`rounded-md px-2.5 py-1 font-medium transition ${
+                className={`rounded-md px-2.5 py-1.5 font-medium transition sm:py-1 ${
                   settings.syriaCurrencyMode === 'new'
                     ? 'bg-teal-500 text-slate-950'
                     : 'text-slate-400 hover:text-white'

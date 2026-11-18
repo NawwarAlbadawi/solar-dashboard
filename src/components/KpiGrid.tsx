@@ -92,24 +92,30 @@ export function KpiGrid({ data, settings, lang }: KpiGridProps) {
   ];
 
   return (
-    <section className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+    <section className="grid grid-cols-2 gap-2.5 sm:gap-3.5 md:grid-cols-3">
       {cards.map((card) => {
         const Icon = card.icon;
         return (
           <div
             key={card.label}
-            className="rounded-2xl border border-slate-800/90 bg-slate-900/60 p-4 shadow-lg transition hover:border-slate-700"
+            className="flex flex-col justify-between rounded-2xl border border-slate-800/90 bg-slate-900/60 p-3 shadow-lg transition hover:border-slate-700 sm:p-4"
           >
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <p className="text-xs font-medium text-slate-400">{card.label}</p>
-                <p className="mt-1 text-2xl font-bold tracking-tight text-white">{card.value}</p>
+            <div className="flex items-start justify-between gap-1.5 sm:gap-2">
+              <div className="min-w-0">
+                <p className="truncate text-[11px] font-medium text-slate-400 sm:text-xs">
+                  {card.label}
+                </p>
+                <p className="mt-1 break-words text-lg font-bold tracking-tight text-white sm:text-2xl">
+                  {card.value}
+                </p>
               </div>
-              <div className={`rounded-xl border p-2 ${card.bg}`}>
-                <Icon className={`h-4 w-4 ${card.accent}`} />
+              <div className={`shrink-0 rounded-xl border p-1.5 sm:p-2 ${card.bg}`}>
+                <Icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${card.accent}`} />
               </div>
             </div>
-            <p className="mt-2.5 text-xs text-slate-400">{card.sub}</p>
+            <p className="mt-2 line-clamp-2 text-[11px] leading-snug text-slate-400 sm:mt-2.5 sm:text-xs">
+              {card.sub}
+            </p>
           </div>
         );
       })}
