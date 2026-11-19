@@ -20,23 +20,23 @@
   },
   {
     "date": "2026-11-19",
-    "pvKwh": 0,
-    "loadKwh": 0.98,
+    "pvKwh": 1.28,
+    "loadKwh": 1.93,
     "gridKwh": 0.02,
-    "battChargeKwh": 0,
+    "battChargeKwh": 0.03,
     "battDischargeKwh": 0,
-    "solarActiveHours": 0,
-    "solarPoweredHours": 0,
+    "solarActiveHours": 0.75,
+    "solarPoweredHours": 0.75,
     "batteryPowerHours": 0,
     "gridPowerHours": 0.17,
     "gridAvailableHours": 0.17,
     "gridArrivals": 1,
-    "peakSunHours": 0,
+    "peakSunHours": 0.75,
     "peakLoadW": 146,
-    "peakPvW": 0,
-    "minSoc": 92,
+    "peakPvW": 130,
+    "minSoc": 66,
     "maxSoc": 92,
-    "selfSufficiencyPct": 98,
-    "samples": 1
+    "selfSufficiencyPct": 99,
+    "samples": 2
   }
 ]
