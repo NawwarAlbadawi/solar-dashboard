@@ -41,14 +41,14 @@
   },
   {
     "date": "2026-11-20",
-    "pvKwh": 0.52,
-    "loadKwh": 0.81,
+    "pvKwh": 1.43,
+    "loadKwh": 2.5,
     "gridKwh": 0,
     "battChargeKwh": 0,
-    "battDischargeKwh": 0.02,
+    "battDischargeKwh": 0.08,
     "solarActiveHours": 0.75,
     "solarPoweredHours": 0.75,
-    "batteryPowerHours": 0.17,
+    "batteryPowerHours": 0.92,
     "gridPowerHours": 0,
     "gridAvailableHours": 0,
     "gridArrivals": 0,
@@ -58,6 +58,6 @@
     "minSoc": 47,
     "maxSoc": 100,
     "selfSufficiencyPct": 100,
-    "samples": 2
+    "samples": 3
   }
 ]
