@@ -24,6 +24,8 @@ export function Header({
   const { inverter, battery, mode, updatedAt } = data;
   const isDemo = mode === 'demo';
   const sysV = detectSystemVoltage(battery.voltageV || inverter.batteryVoltageV);
+  const ageMinutes = Math.floor((Date.now() - new Date(updatedAt).getTime()) / 60000);
+  const isStale = !isDemo && ageMinutes >= 25;
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md">
@@ -147,6 +149,12 @@ export function Header({
           {t.demoBannerMiddle}{' '}
           <code className="rounded bg-slate-900 px-1 py-0.5 text-amber-300" dir="ltr">FSOLAR_PASSWORD</code>{' '}
           {t.demoBannerSuffix}
+        </div>
+      )}
+      {isStale && (
+        <div className="border-t border-rose-500/25 bg-rose-500/10 px-3 py-1.5 text-center text-[11px] leading-relaxed text-rose-200 sm:px-4 sm:text-xs">
+          <AlertTriangle className="me-1.5 inline h-3.5 w-3.5 text-rose-400" />
+          <strong>{t.staleBannerPrefix} {formatRelativeTime(updatedAt, lang)}</strong> — {t.staleBannerSuffix}
         </div>
       )}
     </header>

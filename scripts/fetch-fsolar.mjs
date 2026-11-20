@@ -288,7 +288,9 @@ function parseInverterSnapshot(sn, meta, snap) {
   const loadPower = num(
     snap.acTotalOutActPower ?? snap.acBackupPowerL1 ?? snap.totalConsumptionPower ?? snap.meterPower
   );
-  const gridPower = num(snap.acRInPower ?? snap.acTotalGridPower ?? snap.acGridPowerL1);
+  const gridPower = num(
+    snap.acRInPower ?? snap.acTtlInpower ?? snap.acTotalGridPower ?? snap.acGridPowerL1 ?? snap.acInPowerConvertion
+  );
   const batteryVoltage = num(snap.emsVoltage ?? snap.battVolt);
   const batteryCurrent = num(snap.emsCurrent ?? snap.battCurr);
   const rawBattPower = maybeNum(snap.emsPower ?? snap.bmsPower);
@@ -340,7 +342,10 @@ function parseInverterSnapshot(sn, meta, snap) {
     energyBatteryDischargeTodayKwh: maybeNum(snap.eBatDisCharToday ?? snap.ebatDischarToday),
     warnCount: num(snap.warnCount),
     lastWarnMsg: snap.lastWarnMsg || snap.warnMsg || null,
-    bmsConnected: Boolean(snap.bmsCommunicationStatus || snap.emsSoc !== undefined),
+    bmsConnected:
+      typeof snap.bmsFlag === 'boolean'
+        ? snap.bmsFlag
+        : snap.bmsFlagStr === 'Connected' || Boolean(snap.bmsCommunicationStatus),
     wifiSignalDbm: maybeNum(snap.wifiSignal),
     rawSnapshot: snap,
   };
@@ -472,7 +477,7 @@ function recomputeDailySummary(dateKey, dayPoints, latestInverter) {
     if (p.battW > 0) battChargeKwhInt += (p.battW * dtHours) / 1000;
     if (p.battW < 0) battDischargeKwhInt += (Math.abs(p.battW) * dtHours) / 1000;
 
-    const isGridOn = p.gridOn ?? ((p.gridV ?? 0) >= 130 || p.gridW >= 25);
+    const isGridOn = p.gridOn ?? ((p.gridV ?? 0) >= 85 || p.gridW >= 20);
     if (isGridOn) {
       gridAvailableHours += dtHours;
       if (!prevGridOn) gridArrivals += 1;
@@ -663,7 +668,11 @@ async function main() {
   const existingDaily = wasDemo ? [] : readJsonSafe(dailyPath, []);
 
   const tsIso = now.toISOString();
-  const gridOnNow = inverter.gridVoltageV >= 130 || inverter.gridPowerW >= 25;
+  const gridOnNow =
+    inverter.gridVoltageV >= 85 ||
+    inverter.gridPowerW >= 20 ||
+    inverter.rawSnapshot?.workMode === 2 ||
+    /grid|line|utility/i.test(String(inverter.workMode || ''));
   const newPoint = {
     ts: tsIso,
     pvW: inverter.pvPowerW,

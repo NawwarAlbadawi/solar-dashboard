@@ -254,8 +254,8 @@ export function formatRelativeTime(isoString: string, lang: Lang = 'en'): string
 
 export function isPointGridOn(p: HistoryPoint): boolean {
   if (typeof p.gridOn === 'boolean') return p.gridOn;
-  if (typeof p.gridV === 'number') return p.gridV >= 130 || p.gridW >= 25;
-  return p.gridW >= 25;
+  if (typeof p.gridV === 'number') return p.gridV >= 85 || p.gridW >= 20;
+  return p.gridW >= 20;
 }
 
 export interface GridAnalysis {
@@ -278,7 +278,7 @@ export function analyzeGridHistory(
   liveGridVoltageV: number,
   liveGridPowerW: number
 ): GridAnalysis {
-  const currentlyOn = liveGridVoltageV >= 130 || liveGridPowerW >= 25;
+  const currentlyOn = liveGridVoltageV >= 85 || liveGridPowerW >= 20;
 
   if (!history.length) {
     return {
