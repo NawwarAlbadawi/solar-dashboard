@@ -164,5 +164,26 @@
     "maxSoc": 100,
     "selfSufficiencyPct": 100,
     "samples": 3
+  },
+  {
+    "date": "2026-11-26",
+    "pvKwh": 0,
+    "loadKwh": 0.89,
+    "gridKwh": 0,
+    "battChargeKwh": 0,
+    "battDischargeKwh": 0,
+    "solarActiveHours": 0,
+    "solarPoweredHours": 0,
+    "batteryPowerHours": 0.17,
+    "gridPowerHours": 0,
+    "gridAvailableHours": 0.17,
+    "gridArrivals": 1,
+    "peakSunHours": 0,
+    "peakLoadW": 47,
+    "peakPvW": 0,
+    "minSoc": 93,
+    "maxSoc": 93,
+    "selfSufficiencyPct": 100,
+    "samples": 1
   }
 ]
